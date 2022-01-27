@@ -74,14 +74,11 @@
 
 
 ### 4. 프로젝트 구성도
-  - 프로젝트 구조도 
-    : https://docs.google.com/presentation/d/1ya4Ao-m6Vp0DcSw1y2t5KuYlBzGpffB1Vm3z5S-1SYU/edit#slide=id.g110ba407611_0_230
-
   - 와이어프레임 
     : https://www.figma.com/file/IbI8tdRvYgfyrnOxRpKTGY/eliceTeam7?node-id=95%3A298
 
   - 스토리보드 
-    : https://www.figma.com/file/IbI8tdRvYgfyrnOxRpKTGY/eliceTeam7?node-id=140%3A1425
+    : https://docs.google.com/presentation/d/1ya4Ao-m6Vp0DcSw1y2t5KuYlBzGpffB1Vm3z5S-1SYU/edit#slide=id.g110ba407611_0_230
 
 
 ### 5. 프로젝트 팀원 역할 분담
