@@ -33,4 +33,4 @@ const instrumentSchema = new mongoose.Schema({
 
 const Instrument = mongoose.model("Instrument", instrumentSchema);
 
-module.exports = { Instrument };
+module.exports = Instrument;

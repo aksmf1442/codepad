@@ -13,4 +13,4 @@ const soundSampleSchema = new mongoose.Schema({
 
 const SoundSample = mongoose.model("SoundSample", soundSampleSchema);
 
-module.exports = { SoundSample };
+module.exports = SoundSample;

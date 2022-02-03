@@ -1,18 +1,18 @@
 const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
 
-const forkSchema = new mongoose.Schema({
+const tagSchema = new mongoose.Schema({
   preset: {
     type: Schema.Types.ObjectId,
     ref: "Preset",
     required: true,
   },
-  count: {
-    type: Number,
+  text: {
+    type: String,
     required: true,
   },
 });
 
-const Fork = mongoose.model("Fork", forkSchema);
+const Tag = mongoose.model("Tag", tagSchema);
 
-module.exports = { Fork };
+module.exports = Tag;
