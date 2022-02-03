@@ -8,8 +8,7 @@ const visitSchema = new mongoose.Schema({
     required: true,
   },
   user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
+    type: Number,
     required: true,
   },
 });
