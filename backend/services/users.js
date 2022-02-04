@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const { User } = require("../models");
 
-const addUser = async ({ shortId, email, name, source }) => {
+const addUser = async ({ email, name, source }) => {
   const user = await User.create({
     shortId: nanoid(),
     email,

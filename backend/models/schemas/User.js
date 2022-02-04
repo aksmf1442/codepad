@@ -13,10 +13,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  source: {
-    type: String,
-    required: true,
-  },
   thumbnailURL: {
     type: String,
   },

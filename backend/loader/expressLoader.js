@@ -4,27 +4,21 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const passportInit = require("../passport/index");
-
-const whitelist = ["https://elice7-codepad.herokuapp.com"];
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not Allowed Origin!"));
-    }
-  },
-};
+const routes = require("../routes");
 
 dotenv.config();
 
 module.exports = (app) => {
   passportInit();
 
-  app.use(cors(corsOptions));
+  app.use(cors());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
+  app.use("/uploads/img", express.static("uploads/img"));
+  app.use("/uploads/sound", express.static("uploads/sound"));
 
   app.use(passport.initialize());
+
+  app.use("/", routes());
 };

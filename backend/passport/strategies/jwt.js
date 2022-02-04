@@ -13,6 +13,6 @@ const opts = {
   jwtFromRequest: cookieExtractor,
 };
 
-export default new JwtStrategy(opts, (user, done) => {
+module.exports = new JwtStrategy(opts, (user, done) => {
   done(null, user);
 });

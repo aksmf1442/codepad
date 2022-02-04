@@ -2,7 +2,7 @@ const passport = require("passport");
 const jwt = require("./strategies/jwt");
 const googleOauth = require("./strategies/google");
 
-export default () => {
+module.exports = () => {
   passport.use(jwt);
   passport.use(googleOauth);
 
