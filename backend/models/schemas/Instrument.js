@@ -11,7 +11,7 @@ const instrumentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  sound: {
+  soundSample: {
     type: Schema.Types.ObjectId,
     ref: "SoundSample",
     required: true,
@@ -25,7 +25,7 @@ const instrumentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  playType: {
+  soundType: {
     type: String,
     required: true,
   },

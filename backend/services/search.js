@@ -9,7 +9,7 @@ const getPresetsByTitle = async (start, limit, title) => {
 
   presets = presets.map(({ shortId, thumbnailURL, title, author }) => {
     return {
-      shortId,
+      presetId: shortId,
       thumbnailURL,
       title,
       author: author.name,
@@ -28,7 +28,7 @@ const getPresetsByTag = async (start, limit, tag) => {
 
   tags = tags.map(({ preset }) => {
     return {
-      shortId: preset.shortId,
+      presetId: preset.shortId,
       thumbnailURL: preset.thumbnailURL,
       title: preset.title,
       author: preset.author.name,
@@ -45,7 +45,7 @@ const getArtistsByArtistName = async (start, limit, artist) => {
 
   users = users.map((user) => {
     return {
-      shortId: user.shortId,
+      userId: user.shortId,
       thumbnailURL: user.thumbnailURL,
       name: user.name,
     };
