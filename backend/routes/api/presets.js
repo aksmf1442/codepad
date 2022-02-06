@@ -11,7 +11,7 @@ const {
   createComment,
   updateCommentByCommentId,
   deleteCommentByCommentId,
-  getLikeClickedStatsus,
+  getLikeClickedState,
 } = require("../../services/presets");
 
 const router = Router();
@@ -22,7 +22,7 @@ module.exports = (app) => {
   // 아티스트를 눌렀을 떄 (프리셋 첫 진입)
   router.get("/:userId", async (req, res) => {
     const { userId } = req.params;
-    const preset = getPresetByUserId(userId);
+    const preset = await getPresetByUserId(userId);
 
     res.json(preset);
   });
@@ -30,7 +30,7 @@ module.exports = (app) => {
   // 프리셋 누름(첫 진입 x)
   router.get("/:presetId", async (req, res) => {
     const { presetId } = req.params;
-    const preset = getPresetByPresetId(presetId);
+    const preset = await getPresetByPresetId(presetId);
 
     res.json(preset);
   });
@@ -99,7 +99,7 @@ module.exports = (app) => {
     const { presetId } = req.params;
     const userId = req.user.id;
     const click = false;
-    const isClicked = getLikeClickedStatsus(click, presetId, userId);
+    const isClicked = await getLikeClickedState(click, presetId, userId);
     res.json({ isClicked });
   });
 
@@ -107,7 +107,7 @@ module.exports = (app) => {
     const { presetId } = req.params;
     const userId = req.user.id;
     const click = true;
-    const isClicked = getLikeClickedStatsus(click, presetId, userId);
+    const isClicked = await getLikeClickedState(click, presetId, userId);
 
     res.json({ isClicked });
   });

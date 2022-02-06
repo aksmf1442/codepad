@@ -158,7 +158,7 @@ const validateClickAndGetLike = async (click, user, preset) => {
   return like;
 };
 
-const getLikeClickedStatsus = async (click, presetId, userId) => {
+const getLikeClickedState = async (click, presetId, userId) => {
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.findOne({ shortId: presetId });
   const like = validateClickAndGetLike(click, user, preset);
@@ -179,5 +179,5 @@ module.exports = {
   createComment,
   updateCommentByCommentId,
   deleteCommentByCommentId,
-  getLikeClickedStatsus,
+  getLikeClickedState,
 };
