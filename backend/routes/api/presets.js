@@ -7,6 +7,10 @@ const {
   getPresetsByPresetId,
   getTagsByPresetId,
   getCommunityCountByPresetId,
+  getCommentsByPresetId,
+  createComment,
+  updateCommentByCommentId,
+  deleteCommentByCommentId,
 } = require("../../services/presets");
 
 const router = Router();
@@ -50,6 +54,44 @@ module.exports = (app) => {
       await getCommunityCountByPresetId(presetId);
 
     res.json({ viewCount, likeCount, commentCount });
+  });
+
+  router.get("/:presetId/comments", async (req, res) => {
+    const { presetId } = req.params;
+    const comments = await getCommentsByPresetId(presetId);
+
+    res.json(comments);
+  });
+
+  router.post("/:presetId/comments", async (req, res) => {
+    const { presetId } = req.params;
+    const { text } = req.query;
+    const userId = req.user.id;
+    const comment = await createComment(prsetId, userId, text);
+    const comments = await getCommentsByPresetId(presetId);
+
+    // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
+    res.json(comments);
+  });
+
+  router.put("/:presetId/comments", async (req, res) => {
+    const { presetId } = req.params;
+    const { commentId } = req.query;
+    const comment = await updateCommentByCommentId(commentId, text);
+    const comments = await getCommentsByPresetId(presetId);
+
+    // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
+    res.json(comments);
+  });
+
+  router.delete("/:presetId/comments", async (req, res) => {
+    const { presetId } = req.params;
+    const { commentId } = req.query;
+    const comment = await deleteCommentByCommentId(commentId);
+    const comments = await getCommentsByPresetId(presetId);
+
+    // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
+    res.json(comments);
   });
 
   // 프리셋 컴포넌트(의논해봐야함)

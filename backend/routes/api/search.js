@@ -10,8 +10,10 @@ module.exports = (app) => {
   app.use("/search", router);
 
   router.get("/", async (req, res) => {
-    const { title, tag, artist, page, limit } = req.query;
-    const start = (Number(page) - 1) * limit;
+    let { title, tag, artist, page, limit } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+    const start = (page - 1) * limit;
     let searchData;
 
     if (title !== "undefined") {

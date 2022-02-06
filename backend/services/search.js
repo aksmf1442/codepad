@@ -4,7 +4,7 @@ const getPresetsByTitle = async (start, limit, title) => {
   let presets = await Preset.find({ title })
     .sort({ updatedAt: "desc" })
     .skip(start)
-    .limit(Number(limit))
+    .limit(limit)
     .populate("author");
 
   presets = presets.map(({ shortId, thumbnailURL, title, author }) => {
@@ -23,7 +23,7 @@ const getPresetsByTag = async (start, limit, tag) => {
   let tags = await Tag.find({ text: tag })
     .sort({ updatedAt: "desc" })
     .skip(start)
-    .limit(Number(limit))
+    .limit(limit)
     .populate({ path: "preset", populate: "author" });
 
   tags = tags.map(({ preset }) => {
@@ -39,9 +39,7 @@ const getPresetsByTag = async (start, limit, tag) => {
 };
 
 const getArtistsByArtistName = async (start, limit, artist) => {
-  let users = await User.find({ name: artist })
-    .skip(start)
-    .limit(Number(limit));
+  let users = await User.find({ name: artist }).skip(start).limit(limit);
 
   users = users.map((user) => {
     return {

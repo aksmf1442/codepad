@@ -1,3 +1,5 @@
+const { nanoid } = require("nanoid");
+
 const {
   Preset,
   User,
@@ -107,10 +109,50 @@ const getCommunityCountByPresetId = async (presetId) => {
   return { viewCount, likeCount, commentCount };
 };
 
+const getCommentsByPresetId = async (presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId });
+  const comments = await Comment.find({ preset })
+    .sort({
+      updatedAt: "desc",
+    })
+    .populate("author")
+    .populate("preset");
+  return comments;
+};
+
+const createComment = async (presetId, userId, text) => {
+  const user = await User.findOne({ shortId: userId });
+  const preset = await Preset.findOne({ shortId: presetId });
+  const comment = await Comment.create({
+    shortId: nanoid(),
+    author: user,
+    preset: preset,
+    text,
+  });
+  return comment;
+};
+
+const updateCommentByCommentId = async (commentId, text) => {
+  const comment = await Comment.findOneAndUpdate(
+    { shortId: commentId },
+    { text }
+  );
+  return comment;
+};
+
+const deleteCommentByCommentId = async (commentId) => {
+  const comment = await Comment.findOneAndDelete({ shortId: commentId });
+  return comment;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
   getTagsByPresetId,
   getCommunityCountByPresetId,
+  getCommentsByPresetId,
+  createComment,
+  updateCommentByCommentId,
+  deleteCommentByCommentId,
 };
