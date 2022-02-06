@@ -109,14 +109,28 @@ const getCommunityCountByPresetId = async (presetId) => {
   return { viewCount, likeCount, commentCount };
 };
 
+const parseComments = (comments) => {
+  comments = comments.map((comment) => {
+    return {
+      userName: comment.author.name,
+      userId: comment.author.shortId,
+      userImageURL: comment.author.thumbnailURL,
+      commentId: comment.shortId,
+      comment: comment.text,
+    };
+  });
+  return comments;
+};
+
 const getCommentsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
-  const comments = await Comment.find({ preset })
+  let comments = await Comment.find({ preset })
     .sort({
       updatedAt: "desc",
     })
-    .populate("author")
-    .populate("preset");
+    .populate("author");
+
+  comments = parseComments(comments);
   return comments;
 };
 
