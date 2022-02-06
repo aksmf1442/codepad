@@ -145,6 +145,30 @@ const deleteCommentByCommentId = async (commentId) => {
   return comment;
 };
 
+const validateClickAndGetLike = async (click, user, preset) => {
+  let like = await Like.findOne({ user, preset });
+
+  if (click && like === "undefined") {
+    await Like.create({ user, preset });
+  } else if (click && like !== "undefined") {
+    await Like.findOneAndDelete({ user, preset });
+  }
+
+  like = await Like.findOne({ user, preset });
+  return like;
+};
+
+const getLikeClickedStatsus = async (click, presetId, userId) => {
+  const user = await User.findOne({ shortId: userId });
+  const preset = await Preset.findOne({ shortId: presetId });
+  const like = validateClickAndGetLike(click, user, preset);
+  let isCliked = true;
+  if (like === "undefined") {
+    isCliked = false;
+  }
+  return isCliked;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
@@ -155,4 +179,5 @@ module.exports = {
   createComment,
   updateCommentByCommentId,
   deleteCommentByCommentId,
+  getLikeClickedStatsus,
 };

@@ -11,6 +11,7 @@ const {
   createComment,
   updateCommentByCommentId,
   deleteCommentByCommentId,
+  getLikeClickedStatsus,
 } = require("../../services/presets");
 
 const router = Router();
@@ -92,6 +93,23 @@ module.exports = (app) => {
 
     // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
     res.json(comments);
+  });
+
+  router.get("/presets/:prestId/like", async (req, res) => {
+    const { presetId } = req.params;
+    const userId = req.user.id;
+    const click = false;
+    const isClicked = getLikeClickedStatsus(click, presetId, userId);
+    res.json({ isClicked });
+  });
+
+  router.post("/presets/:presetId/like", async (req, res) => {
+    const { presetId } = req.params;
+    const userId = req.user.id;
+    const click = true;
+    const isClicked = getLikeClickedStatsus(click, presetId, userId);
+
+    res.json({ isClicked });
   });
 
   // 프리셋 컴포넌트(의논해봐야함)
