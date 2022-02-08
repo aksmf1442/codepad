@@ -17,15 +17,15 @@ module.exports = (app) => {
     let searchData;
 
     if (title !== undefined) {
-      searchData = await getPresetsByTitle(start, limit, title);
+      searchData = await getPresetsByTitle(start, limit, title.trim());
     }
 
     if (tag !== undefined) {
-      searchData = await getPresetsByTag(start, limit, tag);
+      searchData = await getPresetsByTag(start, limit, tag.trim());
     }
 
     if (artist !== undefined) {
-      searchData = await getArtistsByArtistName(start, limit, artist);
+      searchData = await getArtistsByArtistName(start, limit, artist.trim());
     }
 
     res.json(searchData);

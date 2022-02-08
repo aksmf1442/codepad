@@ -193,7 +193,6 @@ const addPreset = async (title, userId, isPrivate, thumbnailURL) => {
     shortId: nanoid(),
     author: user,
     title,
-    titleLength: title.length,
     isPrivate,
     size,
     thumbnailURL,
