@@ -1,14 +1,6 @@
 const { Router } = require("express");
-const { nanoid } = require("nanoid");
+
 const { soundStore, imageStore } = require("../../middlewares/multer");
-const {
-  Preset,
-  User,
-  Tag,
-  SoundSample,
-  Instrument,
-  Location,
-} = require("../../models");
 
 const {
   getPresetByUserId,
@@ -125,13 +117,8 @@ module.exports = (app) => {
     const { title, isPrivate, tags } = req.body;
     const userId = "K5NF2d767Am_tD5FDJS3Q";
     const thumbnailURL = req.file.path;
-    const preset = await addPreset(
-      title,
-      userId,
-      isPrivate,
-      tags,
-      thumbnailURL
-    );
+    console.log(thumbnailURL, title, isPrivate, userId);
+    const preset = await addPreset(title, userId, isPrivate, thumbnailURL);
 
     for (let i = 0; i < tags.length; i++) {
       const tag = await addTag(preset, tags[i]);

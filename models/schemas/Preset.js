@@ -16,6 +16,10 @@ const presetSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    titleLength: {
+      type: Number,
+      required: true,
+    },
     isPrivate: {
       type: Boolean,
       required: true,

@@ -8,6 +8,8 @@ const {
   Like,
   Comment,
   Tag,
+  SoundSample,
+  Location,
 } = require("../models");
 
 const getSoundSamplesByPreset = async (preset) => {
@@ -163,9 +165,9 @@ const deleteCommentByCommentId = async (commentId) => {
 const validateClickAndGetLike = async (click, user, preset) => {
   let like = await Like.findOne({ user, preset });
 
-  if (click && like === "undefined") {
+  if (click && like === undefined) {
     await Like.create({ user, preset });
-  } else if (click && like !== "undefined") {
+  } else if (click && like !== undefined) {
     await Like.findOneAndDelete({ user, preset });
   }
 
@@ -178,7 +180,7 @@ const getLikeClickedState = async (click, presetId, userId) => {
   const preset = await Preset.findOne({ shortId: presetId });
   const like = validateClickAndGetLike(click, user, preset);
   let isCliked = true;
-  if (like === "undefined") {
+  if (like === undefined) {
     isCliked = false;
   }
   return isCliked;
@@ -191,6 +193,7 @@ const addPreset = async (title, userId, isPrivate, thumbnailURL) => {
     shortId: nanoid(),
     author: user,
     title,
+    titleLength: title.length,
     isPrivate,
     size,
     thumbnailURL,
@@ -216,6 +219,7 @@ const addInstrument = async (
     y: parseLocation[1],
   });
   const preset = await Preset.findOne({ shortId: presetId });
+  console.log(preset);
   const instrument = await Instrument.create({
     preset,
     soundSample,

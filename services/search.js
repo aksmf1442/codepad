@@ -1,8 +1,8 @@
 const { Preset, Tag, User } = require("../models");
 
 const getPresetsByTitle = async (start, limit, title) => {
-  let presets = await Preset.find({ title })
-    .sort({ updatedAt: "desc" })
+  let presets = await Preset.find({ title: { $regex: title, $options: "i" } })
+    .sort({ titleLength: "asc", updatedAt: "desc" })
     .skip(start)
     .limit(limit)
     .populate("author");
@@ -20,7 +20,7 @@ const getPresetsByTitle = async (start, limit, title) => {
 };
 
 const getPresetsByTag = async (start, limit, tag) => {
-  let tags = await Tag.find({ text: tag })
+  let tags = await Tag.find({ text: { $regex: tag, $options: "i" } })
     .sort({ updatedAt: "desc" })
     .skip(start)
     .limit(limit)
@@ -39,7 +39,9 @@ const getPresetsByTag = async (start, limit, tag) => {
 };
 
 const getArtistsByArtistName = async (start, limit, artist) => {
-  let users = await User.find({ name: artist }).skip(start).limit(limit);
+  let users = await User.find({ name: { $regex: artist, $options: "i" } })
+    .skip(start)
+    .limit(limit);
 
   users = users.map((user) => {
     return {
