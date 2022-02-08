@@ -7,10 +7,6 @@ const instrumentSchema = new mongoose.Schema({
     ref: "Preset",
     required: true,
   },
-  name: {
-    type: String,
-    required: true,
-  },
   soundSample: {
     type: Schema.Types.ObjectId,
     ref: "SoundSample",

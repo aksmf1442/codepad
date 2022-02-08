@@ -1,5 +1,14 @@
 const { Router } = require("express");
-const upload = require("../../middlewares/multer");
+const { nanoid } = require("nanoid");
+const { soundStore, imageStore } = require("../../middlewares/multer");
+const {
+  Preset,
+  User,
+  Tag,
+  SoundSample,
+  Instrument,
+  Location,
+} = require("../../models");
 
 const {
   getPresetByUserId,
@@ -8,10 +17,13 @@ const {
   getTagsByPresetId,
   getCommunityCountByPresetId,
   getCommentsByPresetId,
-  createComment,
+  addComment,
   updateCommentByCommentId,
   deleteCommentByCommentId,
   getLikeClickedState,
+  addInstrument,
+  addPreset,
+  addTag,
 } = require("../../services/presets");
 
 const router = Router();
@@ -68,10 +80,9 @@ module.exports = (app) => {
     const { presetId } = req.params;
     const { text } = req.query;
     const userId = req.user.id;
-    const comment = await createComment(prsetId, userId, text);
+    const comment = await addComment(prsetId, userId, text);
     const comments = await getCommentsByPresetId(presetId);
 
-    // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
     res.json(comments);
   });
 
@@ -81,7 +92,6 @@ module.exports = (app) => {
     const comment = await updateCommentByCommentId(commentId, text);
     const comments = await getCommentsByPresetId(presetId);
 
-    // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
     res.json(comments);
   });
 
@@ -91,7 +101,6 @@ module.exports = (app) => {
     const comment = await deleteCommentByCommentId(commentId);
     const comments = await getCommentsByPresetId(presetId);
 
-    // 바로 댓글 리스트 보내줄 지 의논 후 결정(이 후 수정)
     res.json(comments);
   });
 
@@ -112,16 +121,36 @@ module.exports = (app) => {
     res.json({ isClicked });
   });
 
-  // 프리셋 컴포넌트(의논해봐야함)
-  router.post(
-    "/",
-    upload.fields([{ name: "img" }, { name: "sounds" }]),
-    (req, res) => {
-      const { title, isPrivate, tags, sounds } = req.body;
-      console.log(req.file);
-      console.log("-----");
-      console.log(req.files);
-      res.send("success");
+  router.post("/", imageStore.single("img"), async (req, res) => {
+    const { title, isPrivate, tags } = req.body;
+    const userId = "K5NF2d767Am_tD5FDJS3Q";
+    const thumbnailURL = req.file.path;
+    const preset = await addPreset(
+      title,
+      userId,
+      isPrivate,
+      tags,
+      thumbnailURL
+    );
+
+    for (let i = 0; i < tags.length; i++) {
+      const tag = await addTag(preset, tags[i]);
     }
-  );
+
+    res.json({ presetId: preset.shortId });
+  });
+
+  router.post("/soundUpload", soundStore.single("sound"), async (req, res) => {
+    const { presetId, location, buttonType, soundType } = req.body;
+    const soundSampleURL = req.file.path;
+    const instrument = await addInstrument(
+      presetId,
+      location,
+      buttonType,
+      soundType,
+      soundSampleURL
+    );
+
+    res.json(instrument);
+  });
 };

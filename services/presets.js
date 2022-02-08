@@ -35,6 +35,7 @@ const parsePresetData = (preset, soundSamples) => {
   return {
     presetTitle: preset.title,
     presetId: preset.shortId,
+    areaSize: preset.size,
     thumbnailURL: preset.thumbnailURL,
     isPrivate: preset.isPrivate,
     soundSamples,
@@ -134,7 +135,7 @@ const getCommentsByPresetId = async (presetId) => {
   return comments;
 };
 
-const createComment = async (presetId, userId, text) => {
+const addComment = async (presetId, userId, text) => {
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.findOne({ shortId: presetId });
   const comment = await Comment.create({
@@ -183,6 +184,54 @@ const getLikeClickedState = async (click, presetId, userId) => {
   return isCliked;
 };
 
+const addPreset = async (title, userId, isPrivate, thumbnailURL) => {
+  const size = 8;
+  const user = await User.findOne({ shortId: userId });
+  const preset = await Preset.create({
+    shortId: nanoid(),
+    author: user,
+    title,
+    isPrivate,
+    size,
+    thumbnailURL,
+  });
+
+  return preset;
+};
+
+const addInstrument = async (
+  presetId,
+  location,
+  buttonType,
+  soundType,
+  soundSampleURL
+) => {
+  const soundSample = await SoundSample.create({
+    shortId: nanoid(),
+    URL: soundSampleURL,
+  });
+  let parseLocation = location.split("X");
+  parseLocation = await Location.create({
+    x: parseLocation[0],
+    y: parseLocation[1],
+  });
+  const preset = await Preset.findOne({ shortId: presetId });
+  const instrument = await Instrument.create({
+    preset,
+    soundSample,
+    location: parseLocation,
+    buttonType,
+    soundType,
+  });
+
+  return instrument;
+};
+
+const addTag = async (preset, text) => {
+  const tag = await Tag.create({ preset, text });
+  return tag;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
@@ -190,8 +239,11 @@ module.exports = {
   getTagsByPresetId,
   getCommunityCountByPresetId,
   getCommentsByPresetId,
-  createComment,
+  addComment,
   updateCommentByCommentId,
   deleteCommentByCommentId,
   getLikeClickedState,
+  addInstrument,
+  addPreset,
+  addTag,
 };
