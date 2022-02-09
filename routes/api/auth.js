@@ -26,11 +26,11 @@ module.exports = (app) => {
     (req, res) => {
       const user = { id: req.user.shortId, name: req.user.name };
       setUserToken(res, user);
-      res.redirect("/");
+      res.json();
     }
   );
 
-  router.get("/UserProfile", async (req, res) => {
+  router.get("/userProfile", async (req, res) => {
     const userId = req.user.id;
     const profile = await getUserProfileByUserId(userId);
     res.json(profile);

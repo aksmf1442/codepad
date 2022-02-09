@@ -10,20 +10,20 @@ module.exports = (app) => {
   app.use("/search", router);
 
   router.get("/", async (req, res) => {
-    let { title, tag, artist, page, limit } = req.query;
-    const start = (page - 1) * limit;
+    const { title, tag, artist, page, limit } = req.query;
+    const skip = (page - 1) * limit;
     let searchData;
 
     if (title !== undefined) {
-      searchData = await getPresetsByTitle(start, limit, title.trim());
+      searchData = await getPresetsByTitle(skip, limit, title.trim());
     }
 
     if (tag !== undefined) {
-      searchData = await getPresetsByTag(start, limit, tag.trim());
+      searchData = await getPresetsByTag(skip, limit, tag.trim());
     }
 
     if (artist !== undefined) {
-      searchData = await getArtistsByArtistName(start, limit, artist.trim());
+      searchData = await getArtistsByArtistName(skip, limit, artist.trim());
     }
 
     res.json(searchData);

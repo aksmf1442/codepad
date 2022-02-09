@@ -1,18 +1,56 @@
 const { Preset, Tag, User } = require("../models");
 
-const getPresetsByTitle = async (start, limit, title) => {
-  let presets = await Preset.find({ title: { $regex: title, $options: "gi" } })
-    .skip(start)
-    .limit(limit)
-    .populate("author");
-
-  presets.sort((a, b) => {
-    if (a.title.length === b.title.length) {
-      return a.updatedAt - b.updatedAt;
+const sortData = (data, category) => {
+  data.sort((a, b) => {
+    if (category === "title") {
+      if (a.title.length === b.title.length) {
+        return a.updatedAt - b.updatedAt;
+      }
+      return a.title.length - b.title.length;
     }
-    return a.title.length - b.title.length;
+    if (category === "tag") {
+      if (a.text.length === b.text.length) {
+        return a.updatedAt - b.updatedAt;
+      }
+      return a.text.length - b.text.length;
+    }
+    if (category === "artist") {
+      if (a.name.length === b.name.length) {
+        return a.updatedAt - b.updatedAt;
+      }
+      return a.name.length - b.name.length;
+    }
   });
+  return data;
+};
 
+const skipAndLimitData = (data, skip, limit) => {
+  let skipAndLimitData = [];
+  for (let i = 0; i < data.length; i++) {
+    if (skipAndLimitData.length === Number(limit)) {
+      break;
+    }
+    if (i < skip) {
+      continue;
+    }
+    skipAndLimitData.push(data[i]);
+  }
+  return skipAndLimitData;
+};
+
+const parseData = (presets, skip, limit, category) => {
+  presets = sortData(presets, category);
+  presets = skipAndLimitData(presets, skip, limit);
+
+  return presets;
+};
+
+const getPresetsByTitle = async (skip, limit, title) => {
+  let presets = await Preset.find({
+    title: { $regex: title, $options: "gi" },
+  }).populate("author");
+
+  presets = parseData(presets, skip, limit, "title");
   presets = presets.map(({ shortId, thumbnailURL, title, author }) => {
     return {
       presetId: shortId,
@@ -25,20 +63,14 @@ const getPresetsByTitle = async (start, limit, title) => {
   return presets;
 };
 
-const getPresetsByTag = async (start, limit, tag) => {
-  let tags = await Tag.find({ text: { $regex: tag, $options: "gi" } })
-    .skip(start)
-    .limit(limit)
-    .populate({ path: "preset", populate: "author" });
+const getPresetsByTag = async (skip, limit, tag) => {
+  let tags = await Tag.find({ text: { $regex: tag, $options: "gi" } }).populate(
+    { path: "preset", populate: "author" }
+  );
 
-  tags.sort((a, b) => {
-    if (a.text.length === b.text.length) {
-      return a.updatedAt - b.updatedAt;
-    }
-    return a.text.length - b.text.length;
-  });
+  tags = parseData(tags, skip, limit, "tag");
 
-  tags = tags.map(({ preset }) => {
+  const presets = tags.map(({ preset }) => {
     return {
       presetId: preset.shortId,
       thumbnailURL: preset.thumbnailURL,
@@ -47,13 +79,11 @@ const getPresetsByTag = async (start, limit, tag) => {
     };
   });
 
-  return tags;
+  return presets;
 };
 
-const getArtistsByArtistName = async (start, limit, artist) => {
-  let users = await User.find({ name: { $regex: artist, $options: "gi" } })
-    .skip(start)
-    .limit(limit);
+const getArtistsByArtistName = async (skip, limit, artist) => {
+  let users = await User.find({ name: { $regex: artist, $options: "gi" } });
 
   users.sort((a, b) => {
     if (a.name.length === b.name.length) {
@@ -62,6 +92,7 @@ const getArtistsByArtistName = async (start, limit, artist) => {
     return a.name.length - b.name.length;
   });
 
+  users = parseData(users, skip, limit, "artist");
   users = users.map((user) => {
     return {
       userId: user.shortId,
