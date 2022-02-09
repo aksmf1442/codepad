@@ -1,8 +1,10 @@
 const { User, Like } = require("../models");
 
-const getLikePresetsByUserId = async (userId) => {
+const getLikePresetsByUserId = async (start, limit, userId) => {
   const user = await User.findOne({ shortId: userId });
   let likes = await Like.find({ user })
+    .skip(start)
+    .limit(limit)
     .sort({ updatedAt: "desc" })
     .populate("preset");
 

@@ -58,7 +58,7 @@ const getPresetByUserId = async (userId) => {
 
 const getPresetByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
-
+  console.log(preset);
   const soundSamples = await getSoundSamplesByPreset(preset);
 
   return parsePresetData(preset, soundSamples);
@@ -68,29 +68,30 @@ const getCommunityCount = async (preset) => {
   const viewCount = await Visit.countDocuments({ preset });
   const likeCount = await Like.countDocuments({ preset });
   const commentCount = await Comment.countDocuments({ preset });
-
   return { viewCount, likeCount, commentCount };
 };
 
 const getPresetsByPresetId = async (presetId) => {
-  let presets = await Preset.find({ shortId: presetId }).sort({
-    updatedAt: "desc",
-  });
-  presets = presets.map(async (preset) => {
-    const { viewCount, likeCount, commentCount } = await getCommunityCount(
-      preset
-    );
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  let presets = await Preset.find({ author: preset.author });
 
-    return {
-      presetId: preset.shortId,
-      title: preset.title,
-      reactions: {
-        viewCount,
-        likeCount,
-        commentCount,
-      },
-    };
-  });
+  presets = await Promise.all(
+    presets.map(async (preset) => {
+      const { viewCount, likeCount, commentCount } = await getCommunityCount(
+        preset
+      );
+
+      return {
+        presetId: preset.shortId,
+        title: preset.title,
+        reactions: {
+          viewCount,
+          likeCount,
+          commentCount,
+        },
+      };
+    })
+  );
 
   return presets;
 };
@@ -165,12 +166,11 @@ const deleteCommentByCommentId = async (commentId) => {
 const validateClickAndGetLike = async (click, user, preset) => {
   let like = await Like.findOne({ user, preset });
 
-  if (click && like === undefined) {
+  if (click && like === null) {
     await Like.create({ user, preset });
-  } else if (click && like !== undefined) {
+  } else if (click && like !== null) {
     await Like.findOneAndDelete({ user, preset });
   }
-
   like = await Like.findOne({ user, preset });
   return like;
 };
@@ -178,9 +178,9 @@ const validateClickAndGetLike = async (click, user, preset) => {
 const getLikeClickedState = async (click, presetId, userId) => {
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.findOne({ shortId: presetId });
-  const like = validateClickAndGetLike(click, user, preset);
+  const like = await validateClickAndGetLike(click, user, preset);
   let isCliked = true;
-  if (like === undefined) {
+  if (like === null) {
     isCliked = false;
   }
   return isCliked;
@@ -218,7 +218,7 @@ const addInstrument = async (
     y: parseLocation[1],
   });
   const preset = await Preset.findOne({ shortId: presetId });
-  console.log(preset);
+
   const instrument = await Instrument.create({
     preset,
     soundSample,

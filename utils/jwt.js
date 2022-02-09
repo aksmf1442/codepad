@@ -6,7 +6,7 @@ dotenv.config();
 const secret = process.env.JWT_SECRET;
 
 const setUserToken = (res, user) => {
-  const token = jwt.sign(user.toJSON(), secret);
+  const token = jwt.sign(user, secret);
   res.cookie("token", token);
 };
 

@@ -23,9 +23,37 @@ const router = Router();
 module.exports = (app) => {
   app.use("/presets", router);
 
+  router.post("/", imageStore.single("img"), async (req, res) => {
+    const { title, isPrivate, tags } = req.body;
+    const userId = "K5NF2d767Am_tD5FDJS3Q";
+    const thumbnailURL = req.file.path;
+
+    const preset = await addPreset(title, userId, isPrivate, thumbnailURL);
+
+    for (let i = 0; i < tags.length; i++) {
+      const tag = await addTag(preset, tags[i]);
+    }
+
+    res.json({ presetId: preset.shortId });
+  });
+
+  router.post("/soundUpload", soundStore.single("sound"), async (req, res) => {
+    const { presetId, location, buttonType, soundType } = req.body;
+    const soundSampleURL = req.file.path;
+    const instrument = await addInstrument(
+      presetId,
+      location,
+      buttonType,
+      soundType,
+      soundSampleURL
+    );
+
+    res.json(instrument);
+  });
+
   // 아티스트를 눌렀을 떄 (프리셋 첫 진입)
-  router.get("/:userId", async (req, res) => {
-    const { userId } = req.params;
+  router.get("/", async (req, res) => {
+    const { userId } = req.body;
     const preset = await getPresetByUserId(userId);
 
     res.json(preset);
@@ -34,6 +62,7 @@ module.exports = (app) => {
   // 프리셋 누름(첫 진입 x)
   router.get("/:presetId", async (req, res) => {
     const { presetId } = req.params;
+
     const preset = await getPresetByPresetId(presetId);
 
     res.json(preset);
@@ -70,9 +99,9 @@ module.exports = (app) => {
 
   router.post("/:presetId/comments", async (req, res) => {
     const { presetId } = req.params;
-    const { text } = req.query;
+    const { text } = req.body;
     const userId = req.user.id;
-    const comment = await addComment(prsetId, userId, text);
+    const comment = await addComment(presetId, userId, text);
     const comments = await getCommentsByPresetId(presetId);
 
     res.json(comments);
@@ -80,23 +109,22 @@ module.exports = (app) => {
 
   router.put("/:presetId/comments", async (req, res) => {
     const { presetId } = req.params;
-    const { commentId } = req.query;
+    const { commentId, text } = req.body;
     const comment = await updateCommentByCommentId(commentId, text);
     const comments = await getCommentsByPresetId(presetId);
-
     res.json(comments);
   });
 
   router.delete("/:presetId/comments", async (req, res) => {
     const { presetId } = req.params;
-    const { commentId } = req.query;
+    const { commentId } = req.body;
     const comment = await deleteCommentByCommentId(commentId);
     const comments = await getCommentsByPresetId(presetId);
-
+    console.log(comment);
     res.json(comments);
   });
 
-  router.get("/presets/:prestId/like", async (req, res) => {
+  router.get("/:presetId/like", async (req, res) => {
     const { presetId } = req.params;
     const userId = req.user.id;
     const click = false;
@@ -104,40 +132,12 @@ module.exports = (app) => {
     res.json({ isClicked });
   });
 
-  router.post("/presets/:presetId/like", async (req, res) => {
+  router.post("/:presetId/like", async (req, res) => {
     const { presetId } = req.params;
     const userId = req.user.id;
     const click = true;
     const isClicked = await getLikeClickedState(click, presetId, userId);
 
     res.json({ isClicked });
-  });
-
-  router.post("/", imageStore.single("img"), async (req, res) => {
-    const { title, isPrivate, tags } = req.body;
-    const userId = "K5NF2d767Am_tD5FDJS3Q";
-    const thumbnailURL = req.file.path;
-    console.log(thumbnailURL, title, isPrivate, userId);
-    const preset = await addPreset(title, userId, isPrivate, thumbnailURL);
-
-    for (let i = 0; i < tags.length; i++) {
-      const tag = await addTag(preset, tags[i]);
-    }
-
-    res.json({ presetId: preset.shortId });
-  });
-
-  router.post("/soundUpload", soundStore.single("sound"), async (req, res) => {
-    const { presetId, location, buttonType, soundType } = req.body;
-    const soundSampleURL = req.file.path;
-    const instrument = await addInstrument(
-      presetId,
-      location,
-      buttonType,
-      soundType,
-      soundSampleURL
-    );
-
-    res.json(instrument);
   });
 };

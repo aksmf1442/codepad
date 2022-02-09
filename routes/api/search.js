@@ -11,8 +11,6 @@ module.exports = (app) => {
 
   router.get("/", async (req, res) => {
     let { title, tag, artist, page, limit } = req.query;
-    page = Number(page);
-    limit = Number(limit);
     const start = (page - 1) * limit;
     let searchData;
 

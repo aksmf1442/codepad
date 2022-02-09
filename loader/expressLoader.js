@@ -4,6 +4,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const passportInit = require("../passport/index");
+const getUserFromJwt = require("../middlewares/get-user-from-jwt");
 const routes = require("../routes");
 
 dotenv.config();
@@ -19,6 +20,7 @@ module.exports = (app) => {
   app.use("/uploads/sound", express.static("uploads/sound"));
 
   app.use(passport.initialize());
+  app.use(getUserFromJwt);
 
   app.use("/", routes());
 };
