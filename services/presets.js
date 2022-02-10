@@ -9,6 +9,7 @@ const {
   Tag,
   SoundSample,
   Location,
+  Fork,
 } = require("../models");
 
 const getSoundSamplesByPreset = async (preset) => {
@@ -234,6 +235,27 @@ const addTag = async (preset, text) => {
   return tag;
 };
 
+const addForkByPresetId = async (presetId, userId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  const user = await User.findOne({ shortId: userId });
+  const fork = await Fork.findOne({ preset });
+
+  if (fork !== null) {
+    await Fork.findOneAndUpdate(
+      { preset },
+      {
+        count: fork.count + 1,
+      }
+    );
+  } else {
+    await Fork.create({
+      preset,
+      count: 0,
+    });
+  }
+  return fork;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
@@ -248,4 +270,5 @@ module.exports = {
   addInstrument,
   addPreset,
   addTag,
+  addForkByPresetId,
 };

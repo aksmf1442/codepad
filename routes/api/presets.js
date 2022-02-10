@@ -1,6 +1,8 @@
 const { Router } = require("express");
+const res = require("express/lib/response");
 
 const { soundStore, imageStore } = require("../../middlewares/multer");
+const { Preset, User, Fork } = require("../../models");
 
 const {
   getPresetByUserId,
@@ -16,6 +18,7 @@ const {
   addInstrument,
   addPreset,
   addTag,
+  addForkByPresetId,
 } = require("../../services/presets");
 
 const router = Router();
@@ -140,5 +143,25 @@ module.exports = (app) => {
     const isClicked = await getLikeClickedState(click, presetId, userId);
 
     res.json({ isClicked });
+  });
+
+  router.post("/:presetId/visit", async (req, res) => {
+    const { presetId } = req.params;
+    let preset = await Preset.findOne({ shortId: presetId });
+    await Preset.updateOne(
+      { shortId: presetId },
+      {
+        viewCount: preset.viewCount + 1,
+      }
+    );
+    res.json(preset);
+  });
+
+  // 자기 자신의 프리셋은 포크 못하게 하기
+  router.post("/:presetId/fork", async (req, res) => {
+    const { presetId } = req.params;
+    const userId = req.user.id;
+    const fork = await addForkByPresetId(presetId, userId);
+    res.json(fork);
   });
 };
