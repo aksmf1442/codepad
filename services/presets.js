@@ -256,6 +256,17 @@ const addForkByPresetId = async (presetId, userId) => {
   return fork;
 };
 
+const visitPreset = async (presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId });
+  await Preset.updateOne(
+    { shortId: presetId },
+    {
+      viewCount: preset.viewCount + 1,
+    }
+  );
+  return preset;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
@@ -271,4 +282,5 @@ module.exports = {
   addPreset,
   addTag,
   addForkByPresetId,
+  visitPreset,
 };

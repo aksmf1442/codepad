@@ -1,8 +1,5 @@
 const { Router } = require("express");
-const res = require("express/lib/response");
-
 const { soundStore, imageStore } = require("../../middlewares/multer");
-const { Preset, User, Fork } = require("../../models");
 
 const {
   getPresetByUserId,
@@ -19,6 +16,7 @@ const {
   addPreset,
   addTag,
   addForkByPresetId,
+  visitPreset,
 } = require("../../services/presets");
 
 const router = Router();
@@ -147,13 +145,7 @@ module.exports = (app) => {
 
   router.post("/:presetId/visit", async (req, res) => {
     const { presetId } = req.params;
-    let preset = await Preset.findOne({ shortId: presetId });
-    await Preset.updateOne(
-      { shortId: presetId },
-      {
-        viewCount: preset.viewCount + 1,
-      }
-    );
+    let preset = visitPreset(presetId);
     res.json(preset);
   });
 
