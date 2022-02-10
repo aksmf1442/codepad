@@ -20,11 +20,16 @@ const presetSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
-    thumbnailURL: {
-      type: String,
-    },
     size: {
       type: Number,
+      required: true,
+    },
+    viewCount: {
+      type: Number,
+      default: 0,
+    },
+    thumbnailURL: {
+      type: String,
     },
   },
   {

@@ -39,6 +39,7 @@ module.exports = (app) => {
 
   router.post("/soundUpload", soundStore.single("sound"), async (req, res) => {
     const { presetId, location, buttonType, soundType } = req.body;
+    console.log(req.file);
     const soundSampleURL = req.file.path;
     const instrument = await addInstrument(
       presetId,

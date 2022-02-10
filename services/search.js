@@ -2,7 +2,7 @@ const { Preset, Tag, User } = require("../models");
 
 const sortData = (data, category) => {
   data.sort((a, b) => {
-    if (category === "title") {
+    if (category === "preset") {
       if (a.title.length === b.title.length) {
         return a.updatedAt - b.updatedAt;
       }
@@ -26,12 +26,9 @@ const sortData = (data, category) => {
 
 const skipAndLimitData = (data, skip, limit) => {
   let skipAndLimitData = [];
-  for (let i = 0; i < data.length; i++) {
+  for (let i = skip; i < data.length; i++) {
     if (skipAndLimitData.length === Number(limit)) {
       break;
-    }
-    if (i < skip) {
-      continue;
     }
     skipAndLimitData.push(data[i]);
   }
@@ -50,7 +47,7 @@ const getPresetsByTitle = async (skip, limit, title) => {
     title: { $regex: title, $options: "gi" },
   }).populate("author");
 
-  presets = parseData(presets, skip, limit, "title");
+  presets = parseData(presets, skip, limit, "preset");
   presets = presets.map(({ shortId, thumbnailURL, title, author }) => {
     return {
       presetId: shortId,

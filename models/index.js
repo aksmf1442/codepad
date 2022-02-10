@@ -7,7 +7,6 @@ const Preset = require("./schemas/Preset");
 const SoundSample = require("./schemas/SoundSample");
 const Tag = require("./schemas/Tag");
 const User = require("./schemas/User");
-const Visit = require("./schemas/Visit");
 
 module.exports = {
   Comment,
@@ -19,5 +18,4 @@ module.exports = {
   SoundSample,
   Tag,
   User,
-  Visit,
 };

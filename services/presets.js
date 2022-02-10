@@ -4,7 +4,6 @@ const {
   Preset,
   User,
   Instrument,
-  Visit,
   Like,
   Comment,
   Tag,
@@ -65,7 +64,7 @@ const getPresetByPresetId = async (presetId) => {
 };
 
 const getCommunityCount = async (preset) => {
-  const viewCount = await Visit.countDocuments({ preset });
+  const viewCount = preset.viewCount;
   const likeCount = await Like.countDocuments({ preset });
   const commentCount = await Comment.countDocuments({ preset });
   return { viewCount, likeCount, commentCount };
