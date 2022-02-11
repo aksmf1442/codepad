@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { asyncHandler } = require("../../utils");
-const { soundStore, imageStore } = require("../../middlewares/multer");
+const { soundStore, imageStore, loginRequired } = require("../../middlewares");
 
 const {
   getPresetByUserId,
@@ -27,12 +27,13 @@ module.exports = (app) => {
 
   router.post(
     "/",
+    loginRequired,
     imageStore.single("img"),
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags } = req.body;
-      const userId = req.user.id;
+      const user = req.user;
       const thumbnailURL = req.file.path;
-      const preset = await addPreset(title, userId, isPrivate, thumbnailURL);
+      const preset = await addPreset(title, user, isPrivate, thumbnailURL);
 
       for (let i = 0; i < tags.length; i++) {
         await addTag(preset, tags[i]);
@@ -44,6 +45,7 @@ module.exports = (app) => {
 
   router.post(
     "/soundUpload",
+    loginRequired,
     soundStore.single("sound"),
     asyncHandler(async (req, res) => {
       const { presetId, location, buttonType, soundType } = req.body;
@@ -126,11 +128,12 @@ module.exports = (app) => {
 
   router.post(
     "/:presetId/comments",
+    loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const { text } = req.body;
-      const userId = req.user.id;
-      const comment = await addComment(presetId, userId, text);
+      const user = req.user;
+      await addComment(presetId, user, text);
       const comments = await getCommentsByPresetId(presetId);
 
       res.json(comments);
@@ -139,10 +142,12 @@ module.exports = (app) => {
 
   router.put(
     "/:presetId/comments",
+    loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const { commentId, text } = req.body;
-      const comment = await updateCommentByCommentId(commentId, text);
+      const user = req.user;
+      await updateCommentByCommentId(commentId, text, user);
       const comments = await getCommentsByPresetId(presetId);
       res.json(comments);
     })
@@ -150,34 +155,37 @@ module.exports = (app) => {
 
   router.delete(
     "/:presetId/comments",
+    loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const { commentId } = req.body;
-      const comment = await deleteCommentByCommentId(commentId);
+      const user = req.user;
+      await deleteCommentByCommentId(commentId, user);
       const comments = await getCommentsByPresetId(presetId);
-      console.log(comment);
       res.json(comments);
     })
   );
 
   router.get(
     "/:presetId/like",
+    loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      const userId = req.user.id;
+      const user = req.user;
       const click = false;
-      const isClicked = await getLikeClickedState(click, presetId, userId);
+      const isClicked = await getLikeClickedState(click, presetId, user);
       res.json({ isClicked });
     })
   );
 
   router.post(
     "/:presetId/like",
+    loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      const userId = req.user.id;
+      const user = req.user;
       const click = true;
-      const isClicked = await getLikeClickedState(click, presetId, userId);
+      const isClicked = await getLikeClickedState(click, presetId, user);
 
       res.json({ isClicked });
     })
@@ -192,13 +200,13 @@ module.exports = (app) => {
     })
   );
 
-  // 자기 자신의 프리셋은 포크 못하게 하기
   router.post(
     "/:presetId/fork",
+    loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      const userId = req.user.id;
-      const fork = await addForkByPresetId(presetId, userId);
+      const user = req.user;
+      const fork = await addForkByPresetId(presetId, user);
       res.json(fork);
     })
   );

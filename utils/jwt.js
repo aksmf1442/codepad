@@ -10,4 +10,8 @@ const setUserToken = (res, user) => {
   res.cookie("token", token);
 };
 
-module.exports = { secret, setUserToken };
+const validateToken = (token, callback) => {
+  return jwt.verify(token, process.env.JWT_SECRET, callback);
+};
+
+module.exports = { secret, setUserToken, validateToken };

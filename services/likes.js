@@ -1,12 +1,6 @@
-const { User, Like } = require("../models");
+const { Like } = require("../models");
 
-const getLikePresetsByUserId = async (skip, limit, userId) => {
-  const user = await User.findOne({ shortId: userId });
-
-  if (!user) {
-    throw new Error("");
-  }
-
+const getLikePresetsByUser = async (skip, limit, user) => {
   let likes = await Like.find({ user })
     .skip(skip)
     .limit(limit)
@@ -23,4 +17,4 @@ const getLikePresetsByUserId = async (skip, limit, userId) => {
   return likes;
 };
 
-module.exports = { getLikePresetsByUserId };
+module.exports = { getLikePresetsByUser };

@@ -2,10 +2,10 @@ const { Router } = require("express");
 const passport = require("passport");
 const { setUserToken, asyncHandler } = require("../../utils");
 const {
-  getUserProfileByUserId,
-  updateUserProfileByUserId,
+  getUserProfileByUser,
+  updateUserProfileByUser,
 } = require("../../services/auth");
-const { imageStore } = require("../../middlewares/multer");
+const { imageStore, loginRequired } = require("../../middlewares");
 
 const router = Router();
 
@@ -32,25 +32,23 @@ module.exports = (app) => {
 
   router.get(
     "/userProfile",
+    loginRequired,
     asyncHandler(async (req, res) => {
-      const userId = req.user.id;
-      const profile = await getUserProfileByUserId(userId);
+      const user = req.user;
+      const profile = getUserProfileByUser(user);
       res.json(profile);
     })
   );
 
   router.put(
     "/userProfile",
+    loginRequired,
     imageStore.single("img"),
     asyncHandler(async (req, res) => {
-      const userId = req.user.id;
+      const user = req.user;
       const thumbnailURL = req.file.path;
       const { name } = req.body;
-      const profile = await updateUserProfileByUserId(
-        userId,
-        thumbnailURL,
-        name
-      );
+      const profile = await updateUserProfileByUser(user, thumbnailURL, name);
       res.json(profile);
     })
   );

@@ -69,7 +69,6 @@ const getPresetsByTag = async (skip, limit, tag) => {
   );
 
   tags = parseData(tags, skip, limit, "tag");
-
   const presets = tags.map(({ preset }) => {
     return {
       presetId: preset.shortId,

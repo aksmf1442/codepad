@@ -1,5 +1,4 @@
 const { nanoid } = require("nanoid");
-
 const {
   Preset,
   User,
@@ -53,7 +52,7 @@ const getPresetByUserId = async (userId) => {
     .limit(1);
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   const soundSamples = await getSoundSamplesByPreset(preset);
@@ -65,7 +64,7 @@ const getPresetByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   const soundSamples = await getSoundSamplesByPreset(preset);
@@ -84,7 +83,7 @@ const getPresetsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   let presets = await Preset.find({ author: preset.author });
@@ -114,7 +113,7 @@ const getTagsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   let tags = await Tag.find({ preset });
@@ -127,7 +126,7 @@ const getCommunityCountByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   const { viewCount, likeCount, commentCount } = await getCommunityCount(
@@ -154,7 +153,7 @@ const getCommentsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   let comments = await Comment.find({ preset })
@@ -167,12 +166,11 @@ const getCommentsByPresetId = async (presetId) => {
   return comments;
 };
 
-const addComment = async (presetId, userId, text) => {
-  const user = await User.findOne({ shortId: userId });
+const addComment = async (presetId, user, text) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
-  if (!user || !preset) {
-    throw new Error("");
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   const comment = await Comment.create({
@@ -184,25 +182,30 @@ const addComment = async (presetId, userId, text) => {
   return comment;
 };
 
-const updateCommentByCommentId = async (commentId, text) => {
-  const comment = await Comment.findOneAndUpdate(
-    { shortId: commentId },
-    { text }
+const validateCommentUser = async (user, commentId) => {
+  const comment = await Comment.findOne({ shortId: commentId }).populate(
+    "author"
   );
 
   if (!comment) {
-    throw new Error("");
+    throw new Error("댓글 정보가 없습니다.");
   }
+
+  if (user.shortId !== comment.author.shortId) {
+    throw new Error("잘못된 접근입니다.");
+  }
+};
+
+const updateCommentByCommentId = async (commentId, text, user) => {
+  validateCommentUser(user, commentId);
+  await Comment.findOneAndUpdate({ shortId: commentId }, { text });
 
   return comment;
 };
 
-const deleteCommentByCommentId = async (commentId) => {
+const deleteCommentByCommentId = async (commentId, user) => {
+  validateCommentUser(user, commentId);
   const comment = await Comment.findOneAndDelete({ shortId: commentId });
-
-  if (!comment) {
-    throw new Error("");
-  }
 
   return comment;
 };
@@ -219,12 +222,12 @@ const validateClickAndGetLike = async (click, user, preset) => {
   return like;
 };
 
-const getLikeClickedState = async (click, presetId, userId) => {
-  const user = await User.findOne({ shortId: userId });
+const getLikeClickedState = async (click, presetId, user) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
-  if (!user || !preset) {
-    throw new Error("");
+  if (!preset) {
+    console.log(1);
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   const like = await validateClickAndGetLike(click, user, preset);
@@ -235,12 +238,11 @@ const getLikeClickedState = async (click, presetId, userId) => {
   return isCliked;
 };
 
-const addPreset = async (title, userId, isPrivate, thumbnailURL) => {
+const addPreset = async (title, user, isPrivate, thumbnailURL) => {
   if (!title || !isPrivate) {
-    throw new Error("");
+    throw new Error("필수 정보 입력이 필요합니다.");
   }
   const size = 8;
-  const user = await User.findOne({ shortId: userId });
   const preset = await Preset.create({
     shortId: nanoid(),
     author: user,
@@ -261,7 +263,7 @@ const addInstrument = async (
   soundSampleURL
 ) => {
   if (!presetId || !location || !buttonType || !soundType || !soundSampleURL) {
-    throw new Error("");
+    throw new Error("필수 정보 입력이 필요합니다.");
   }
   const soundSample = await SoundSample.create({
     shortId: nanoid(),
@@ -306,17 +308,16 @@ const validateFirstFork = async (fork, preset) => {
   }
 };
 
-const addForkByPresetId = async (presetId, userId) => {
+const addForkByPresetId = async (presetId, user) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
-  const user = await User.findOne({ shortId: userId });
   const fork = await Fork.findOne({ preset });
 
-  if (!user || !preset) {
-    throw new Error("");
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   await validateFirstFork(fork, preset);
-  await addPreset(preset.title, userId, preset.isPrivate, preset.thumbnailURL);
+  await addPreset(preset.title, user, preset.isPrivate, preset.thumbnailURL);
 
   return fork;
 };
@@ -325,7 +326,7 @@ const visitPreset = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
-    throw new Error("");
+    throw new Error("프리셋 정보가 없습니다.");
   }
 
   await Preset.updateOne(
