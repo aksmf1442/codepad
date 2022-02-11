@@ -2,6 +2,11 @@ const { User, Like } = require("../models");
 
 const getLikePresetsByUserId = async (skip, limit, userId) => {
   const user = await User.findOne({ shortId: userId });
+
+  if (!user) {
+    throw new Error("");
+  }
+
   let likes = await Like.find({ user })
     .skip(skip)
     .limit(limit)

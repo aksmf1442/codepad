@@ -35,17 +35,20 @@ const skipAndLimitData = (data, skip, limit) => {
   return skipAndLimitData;
 };
 
-const parseData = (presets, skip, limit, category) => {
-  presets = sortData(presets, category);
-  presets = skipAndLimitData(presets, skip, limit);
+const parseData = (data, skip, limit, category) => {
+  data = sortData(data, category);
+  data = skipAndLimitData(data, skip, limit);
 
-  return presets;
+  return data;
 };
 
 const getPresetsByTitle = async (skip, limit, title) => {
   let presets = await Preset.find({
     title: { $regex: title, $options: "gi" },
-  }).populate("author");
+  })
+    .where("isPrivate")
+    .equals(true)
+    .populate("author");
 
   presets = parseData(presets, skip, limit, "preset");
   presets = presets.map(({ shortId, thumbnailURL, title, author }) => {
@@ -62,7 +65,7 @@ const getPresetsByTitle = async (skip, limit, title) => {
 
 const getPresetsByTag = async (skip, limit, tag) => {
   let tags = await Tag.find({ text: { $regex: tag, $options: "gi" } }).populate(
-    { path: "preset", populate: "author" }
+    { path: "preset", match: { isPrivate: true }, populate: "author" }
   );
 
   tags = parseData(tags, skip, limit, "tag");

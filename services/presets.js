@@ -51,6 +51,11 @@ const getPresetByUserId = async (userId) => {
       updatedAt: "desc",
     })
     .limit(1);
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   const soundSamples = await getSoundSamplesByPreset(preset);
 
   return parsePresetData(preset, soundSamples);
@@ -58,7 +63,11 @@ const getPresetByUserId = async (userId) => {
 
 const getPresetByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
-  console.log(preset);
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   const soundSamples = await getSoundSamplesByPreset(preset);
 
   return parsePresetData(preset, soundSamples);
@@ -73,6 +82,11 @@ const getCommunityCount = async (preset) => {
 
 const getPresetsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   let presets = await Preset.find({ author: preset.author });
 
   presets = await Promise.all(
@@ -98,6 +112,11 @@ const getPresetsByPresetId = async (presetId) => {
 
 const getTagsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   let tags = await Tag.find({ preset });
   tags = tags.map((tag) => tag.text);
 
@@ -106,6 +125,11 @@ const getTagsByPresetId = async (presetId) => {
 
 const getCommunityCountByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   const { viewCount, likeCount, commentCount } = await getCommunityCount(
     preset
   );
@@ -128,6 +152,11 @@ const parseComments = (comments) => {
 
 const getCommentsByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   let comments = await Comment.find({ preset })
     .sort({
       updatedAt: "desc",
@@ -141,6 +170,11 @@ const getCommentsByPresetId = async (presetId) => {
 const addComment = async (presetId, userId, text) => {
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.findOne({ shortId: presetId });
+
+  if (!user || !preset) {
+    throw new Error("");
+  }
+
   const comment = await Comment.create({
     shortId: nanoid(),
     author: user,
@@ -155,11 +189,21 @@ const updateCommentByCommentId = async (commentId, text) => {
     { shortId: commentId },
     { text }
   );
+
+  if (!comment) {
+    throw new Error("");
+  }
+
   return comment;
 };
 
 const deleteCommentByCommentId = async (commentId) => {
   const comment = await Comment.findOneAndDelete({ shortId: commentId });
+
+  if (!comment) {
+    throw new Error("");
+  }
+
   return comment;
 };
 
@@ -178,6 +222,11 @@ const validateClickAndGetLike = async (click, user, preset) => {
 const getLikeClickedState = async (click, presetId, userId) => {
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.findOne({ shortId: presetId });
+
+  if (!user || !preset) {
+    throw new Error("");
+  }
+
   const like = await validateClickAndGetLike(click, user, preset);
   let isCliked = true;
   if (like === null) {
@@ -187,6 +236,9 @@ const getLikeClickedState = async (click, presetId, userId) => {
 };
 
 const addPreset = async (title, userId, isPrivate, thumbnailURL) => {
+  if (!title || !isPrivate) {
+    throw new Error("");
+  }
   const size = 8;
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.create({
@@ -208,6 +260,9 @@ const addInstrument = async (
   soundType,
   soundSampleURL
 ) => {
+  if (!presetId || !location || !buttonType || !soundType || !soundSampleURL) {
+    throw new Error("");
+  }
   const soundSample = await SoundSample.create({
     shortId: nanoid(),
     URL: soundSampleURL,
@@ -235,12 +290,8 @@ const addTag = async (preset, text) => {
   return tag;
 };
 
-const addForkByPresetId = async (presetId, userId) => {
-  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
-  const user = await User.findOne({ shortId: userId });
-  const fork = await Fork.findOne({ preset });
-
-  if (fork !== null) {
+const validateFirstFork = async (fork, preset) => {
+  if (fork) {
     await Fork.findOneAndUpdate(
       { preset },
       {
@@ -253,11 +304,30 @@ const addForkByPresetId = async (presetId, userId) => {
       count: 0,
     });
   }
+};
+
+const addForkByPresetId = async (presetId, userId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  const user = await User.findOne({ shortId: userId });
+  const fork = await Fork.findOne({ preset });
+
+  if (!user || !preset) {
+    throw new Error("");
+  }
+
+  await validateFirstFork(fork, preset);
+  await addPreset(preset.title, userId, preset.isPrivate, preset.thumbnailURL);
+
   return fork;
 };
 
 const visitPreset = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
+
+  if (!preset) {
+    throw new Error("");
+  }
+
   await Preset.updateOne(
     { shortId: presetId },
     {

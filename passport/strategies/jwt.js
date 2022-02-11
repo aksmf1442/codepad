@@ -1,5 +1,5 @@
 const passportJwt = require("passport-jwt");
-const { secret } = require("../../utils/jwt");
+const { secret } = require("../../utils");
 
 const JwtStrategy = passportJwt.Strategy;
 

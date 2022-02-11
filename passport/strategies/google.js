@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 const GoogleStrategy = require("passport-google-oauth20");
-const { getUserByEmail, addUser } = require("../../utils/users");
+const { getUserByEmail, addUser } = require("../../utils");
 
 dotenv.config();
 

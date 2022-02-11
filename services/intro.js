@@ -55,6 +55,9 @@ const sortRecentlyUsedPresets = async (presets) => {
   const recentlyUsedPresets = await Promise.all(
     presets.map(async (presetId) => {
       const preset = await Preset.findOne({ shortId: presetId });
+      if (!preset) {
+        throw new Error("");
+      }
       return preset;
     })
   );
