@@ -226,7 +226,6 @@ const getLikeClickedState = async (click, presetId, user) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
-    console.log(1);
     throw new Error("프리셋 정보가 없습니다.");
   }
 

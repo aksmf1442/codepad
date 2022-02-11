@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const passportInit = require("../passport/index");
 const routes = require("../routes");
+const morgan = require("morgan");
 
 dotenv.config();
 
@@ -20,5 +21,6 @@ module.exports = (app) => {
 
   app.use(passport.initialize());
 
+  app.use(morgan("tiny"));
   app.use("/", routes());
 };
