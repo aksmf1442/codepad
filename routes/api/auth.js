@@ -6,10 +6,8 @@ const {
   updateUserProfileByUser,
 } = require("../../services/auth");
 const { imageStore, loginRequired } = require("../../middlewares");
-const dotenv = require("dotenv");
 
 const router = Router();
-dotenv.config();
 
 module.exports = (app) => {
   app.use("/auth", router);
@@ -28,9 +26,7 @@ module.exports = (app) => {
     (req, res) => {
       const user = { id: req.user.shortId, name: req.user.name };
       setUserToken(res, user);
-      res.redirect(
-        process.env.NODE_ENV === "production" ? process.env.SERVICE_URL : "/"
-      );
+      res.json();
     }
   );
 
