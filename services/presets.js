@@ -198,7 +198,10 @@ const validateCommentUser = async (user, commentId) => {
 
 const updateCommentByCommentId = async (commentId, text, user) => {
   validateCommentUser(user, commentId);
-  await Comment.findOneAndUpdate({ shortId: commentId }, { text });
+  const comment = await Comment.findOneAndUpdate(
+    { shortId: commentId },
+    { text }
+  );
 
   return comment;
 };
