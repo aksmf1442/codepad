@@ -20,10 +20,7 @@ module.exports = new GoogleStrategy(
 
     const currentUser = await getUserByEmail(email);
     if (!currentUser) {
-      const newUser = await addUser({
-        email,
-        name,
-      });
+      const newUser = await addUser(email, name);
       return done(null, newUser);
     }
 
