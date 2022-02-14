@@ -32,7 +32,7 @@ module.exports = (app) => {
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags } = req.body;
       const user = req.user;
-      const thumbnailURL = req.file.path;
+      const thumbnailURL = req.file === undefined ? null : req.file.path;
       const preset = await addPreset(title, user, isPrivate, thumbnailURL);
 
       for (let i = 0; i < tags.length; i++) {
