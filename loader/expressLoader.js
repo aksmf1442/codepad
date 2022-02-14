@@ -12,7 +12,12 @@ dotenv.config();
 module.exports = (app) => {
   passportInit();
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    })
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
