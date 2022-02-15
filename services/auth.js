@@ -9,7 +9,10 @@ const getUserProfileByUser = (user) => {
 };
 
 const updateUserProfileByUser = async (user, thumbnailURL, name) => {
-  await User.updateOne({ shortId: user.shortId }, { name, thumbnailURL });
+  await User.findOneAndUpdate(
+    { shortId: user.shortId },
+    { name, thumbnailURL }
+  );
 
   return getUserProfileByUser(user);
 };
