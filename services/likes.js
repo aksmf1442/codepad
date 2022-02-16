@@ -7,7 +7,6 @@ const getLikePresetsByUser = async (skip, limit, user) => {
     .sort({ updatedAt: "desc" })
     .populate({
       path: "preset",
-      match: { isPrivate: false },
       populate: "author",
     });
 
