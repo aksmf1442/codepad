@@ -22,5 +22,5 @@ module.exports = (app) => {
   app.use(passport.initialize());
 
   app.use(morgan("tiny"));
-  app.use("/", routes());
+  app.use("/api", routes());
 };
