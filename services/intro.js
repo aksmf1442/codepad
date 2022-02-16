@@ -6,6 +6,7 @@ const sortPresetsByLikeAndVisitCount = async (presets) => {
       const likeCount = await Like.countDocuments({ preset });
       return {
         presetId: preset.shortId,
+        userId: preset.author.shortId,
         thumbnailURL: preset.thumbnailURL,
         title: preset.title,
         author: preset.author.name,
@@ -36,6 +37,7 @@ const skipAndLimitPresets = (presets, skip, limit) => {
       thumbnailURL: preset.thumbnailURL,
       title: preset.title,
       author: preset.author,
+      userId: preset.userId,
     });
   }
 
