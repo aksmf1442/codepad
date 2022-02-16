@@ -45,7 +45,10 @@ const skipAndLimitPresets = (presets, skip, limit) => {
 };
 
 const getPopularPresets = async (skip, limit) => {
-  let presets = await Preset.find().populate("author");
+  let presets = await Preset.find()
+    .where("isPrivate")
+    .equals(false)
+    .populate("author");
 
   const comparablePresets = await sortPresetsByLikeAndVisitCount(presets);
   presets = skipAndLimitPresets(comparablePresets, skip, limit);

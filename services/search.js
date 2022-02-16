@@ -47,7 +47,7 @@ const getPresetsByTitle = async (skip, limit, title) => {
     title: { $regex: title, $options: "gi" },
   })
     .where("isPrivate")
-    .equals(true)
+    .equals(false)
     .populate("author");
 
   presets = parseData(presets, skip, limit, "preset");
@@ -65,7 +65,7 @@ const getPresetsByTitle = async (skip, limit, title) => {
 
 const getPresetsByTag = async (skip, limit, tag) => {
   let tags = await Tag.find({ text: { $regex: tag, $options: "gi" } }).populate(
-    { path: "preset", match: { isPrivate: true }, populate: "author" }
+    { path: "preset", match: { isPrivate: false }, populate: "author" }
   );
 
   tags = parseData(tags, skip, limit, "tag");

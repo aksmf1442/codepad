@@ -38,7 +38,6 @@ const parsePresetData = (preset, soundSamples) => {
     presetId: preset.shortId,
     areaSize: preset.size,
     thumbnailURL: preset.thumbnailURL,
-    isPrivate: preset.isPrivate,
     soundSamples,
   };
 };
@@ -46,6 +45,8 @@ const parsePresetData = (preset, soundSamples) => {
 const getPresetByUserId = async (userId) => {
   const user = await User.findOne({ shortId: userId });
   const preset = await Preset.find({ author: user })
+    .where("isPrivate")
+    .equals(false)
     .sort({
       updatedAt: "desc",
     })
@@ -86,7 +87,9 @@ const getPresetsByPresetId = async (presetId) => {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
-  let presets = await Preset.find({ author: preset.author });
+  let presets = await Preset.find({ author: preset.author })
+    .where("isPrivate")
+    .equals(false);
 
   presets = await Promise.all(
     presets.map(async (preset) => {

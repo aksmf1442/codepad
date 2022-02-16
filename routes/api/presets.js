@@ -53,7 +53,7 @@ module.exports = (app) => {
       const { presetId, location, buttonType, soundType } = req.body;
       const soundSampleURL = req.file.path;
 
-      const instrument = await addInstrument(
+      await addInstrument(
         presetId,
         location,
         buttonType,
@@ -61,17 +61,7 @@ module.exports = (app) => {
         soundSampleURL
       );
 
-      res.json(instrument);
-    })
-  );
-
-  // 아티스트를 눌렀을 떄 (프리셋 첫 진입)
-  router.get(
-    "/:userId",
-    asyncHandler(async (req, res) => {
-      const { userId } = req.params;
-      const preset = await getPresetByUserId(userId);
-      res.json(preset);
+      res.json({ message: "저장 완료" });
     })
   );
 
@@ -204,7 +194,15 @@ module.exports = (app) => {
     })
   );
 
-  // 프리셋 누름(첫 진입 x)
+  router.get(
+    "/:userId",
+    asyncHandler(async (req, res) => {
+      const { userId } = req.params;
+      const preset = await getPresetByUserId(userId);
+      res.json(preset);
+    })
+  );
+
   router.get(
     "/:userId/:presetId",
     asyncHandler(async (req, res) => {
