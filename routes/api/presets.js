@@ -65,22 +65,20 @@ module.exports = (app) => {
 
   // 아티스트를 눌렀을 떄 (프리셋 첫 진입)
   router.get(
-    "/",
+    "/:userId",
     asyncHandler(async (req, res) => {
-      const { userId } = req.body;
+      const { userId } = req.params;
       const preset = await getPresetByUserId(userId);
-
       res.json(preset);
     })
   );
 
   // 프리셋 누름(첫 진입 x)
   router.get(
-    "/:presetId",
+    "/:userId/:presetId",
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const preset = await getPresetByPresetId(presetId);
-
       res.json(preset);
     })
   );

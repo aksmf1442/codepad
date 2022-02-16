@@ -33,6 +33,7 @@ const getSoundSamplesByPreset = async (preset) => {
 };
 
 const parsePresetData = (preset, soundSamples) => {
+  console.log(preset.title);
   return {
     presetTitle: preset.title,
     presetId: preset.shortId,
@@ -57,7 +58,7 @@ const getPresetByUserId = async (userId) => {
 
   const soundSamples = await getSoundSamplesByPreset(preset);
 
-  return parsePresetData(preset, soundSamples);
+  return parsePresetData(preset[0], soundSamples);
 };
 
 const getPresetByPresetId = async (presetId) => {
