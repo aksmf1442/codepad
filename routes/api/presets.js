@@ -73,16 +73,6 @@ module.exports = (app) => {
     })
   );
 
-  // 프리셋 누름(첫 진입 x)
-  router.get(
-    "/:userId/:presetId",
-    asyncHandler(async (req, res) => {
-      const { presetId } = req.params;
-      const preset = await getPresetByPresetId(presetId);
-      res.json(preset);
-    })
-  );
-
   router.get(
     "/:presetId/list",
     asyncHandler(async (req, res) => {
@@ -117,6 +107,7 @@ module.exports = (app) => {
   router.get(
     "/:presetId/comments",
     asyncHandler(async (req, res) => {
+      console.log(1);
       const { presetId } = req.params;
       const comments = await getCommentsByPresetId(presetId);
 
@@ -193,8 +184,9 @@ module.exports = (app) => {
     "/:presetId/visit",
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      let preset = visitPreset(presetId);
-      res.json(preset);
+      await visitPreset(presetId);
+
+      res.json({ message: "success" });
     })
   );
 
@@ -204,8 +196,18 @@ module.exports = (app) => {
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const user = req.user;
-      const fork = await addForkByPresetId(presetId, user);
-      res.json(fork);
+      await addForkByPresetId(presetId, user);
+      res.json({ message: "success" });
+    })
+  );
+
+  // 프리셋 누름(첫 진입 x)
+  router.get(
+    "/:userId/:presetId",
+    asyncHandler(async (req, res) => {
+      const { presetId } = req.params;
+      const preset = await getPresetByPresetId(presetId);
+      res.json(preset);
     })
   );
 };

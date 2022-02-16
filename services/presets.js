@@ -306,7 +306,7 @@ const validateFirstFork = async (fork, preset) => {
   } else {
     await Fork.create({
       preset,
-      count: 0,
+      count: 1,
     });
   }
 };
