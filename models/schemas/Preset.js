@@ -7,6 +7,10 @@ const presetSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    presetType: {
+      type: String,
+      default: "custom",
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: "User",

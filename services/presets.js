@@ -73,6 +73,41 @@ const getPresetByPresetId = async (presetId) => {
   return parsePresetData(preset, soundSamples);
 };
 
+const getDefaultPreset = async () => {
+  const presetType = "default";
+  const presets = await Preset.find({ presetType })
+    .sort({
+      updatedAt: "asc",
+    })
+    .limit(1);
+
+  const preset = presets[0];
+
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+
+  const soundSamples = await getSoundSamplesByPreset(preset);
+
+  return parsePresetData(preset, soundSamples);
+};
+
+const getDefaultPresets = async () => {
+  const presetType = "default";
+  let presets = await Preset.find({ presetType }).sort({
+    updatedAt: "desc",
+  });
+
+  presets = presets.map((preset) => {
+    return {
+      presetId: preset.shortId,
+      title: preset.title,
+    };
+  });
+
+  return presets;
+};
+
 const getCommunityCount = async (preset) => {
   const viewCount = preset.viewCount;
   const likeCount = await Like.countDocuments({ preset });
@@ -245,13 +280,14 @@ const getLikeClickedState = async (click, presetId, user) => {
   return isCliked;
 };
 
-const addPreset = async (title, user, isPrivate, thumbnailURL) => {
+const addPreset = async (title, user, isPrivate, thumbnailURL, presetType) => {
   if (!title || !isPrivate) {
     throw new Error("필수 정보 입력이 필요합니다.");
   }
   const size = 8;
   const preset = await Preset.create({
     shortId: nanoid(),
+    presetType,
     author: user,
     title,
     isPrivate,
@@ -318,13 +354,20 @@ const validateFirstFork = async (fork, preset) => {
 const addForkByPresetId = async (presetId, user) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
   const fork = await Fork.findOne({ preset });
+  const presetType = "custom";
 
   if (!preset) {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
   await validateFirstFork(fork, preset);
-  await addPreset(preset.title, user, preset.isPrivate, preset.thumbnailURL);
+  await addPreset(
+    preset.title,
+    user,
+    preset.isPrivate,
+    preset.thumbnailURL,
+    presetType
+  );
 
   return fork;
 };
@@ -349,6 +392,8 @@ module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
+  getDefaultPreset,
+  getDefaultPresets,
   getTagsByPresetId,
   getCommunityCountByPresetId,
   getCommentsByPresetId,

@@ -8,6 +8,8 @@ const {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
+  getDefaultPreset,
+  getDefaultPresets,
   getTagsByPresetId,
   getCommunityCountByPresetId,
   getCommentsByPresetId,
@@ -35,7 +37,15 @@ module.exports = (app) => {
       const { title, isPrivate, tags } = req.body;
       const user = req.user;
       const thumbnailURL = req.file === undefined ? null : req.file.path;
-      const preset = await addPreset(title, user, isPrivate, thumbnailURL);
+      const presetType = "custom";
+      const preset = await addPreset(
+        title,
+        presetType,
+        user,
+        isPrivate,
+        thumbnailURL,
+        presetType
+      );
 
       for (let i = 0; i < tags.length; i++) {
         await addTag(preset, tags[i]);
@@ -195,11 +205,59 @@ module.exports = (app) => {
   );
 
   router.get(
+    "/defaultPreset",
+    asyncHandler(async (req, res) => {
+      const preset = await getDefaultPreset();
+      res.json(preset);
+    })
+  );
+
+  router.post(
+    "/defaultPreset",
+    loginRequired,
+    imageStore.single("img"),
+    asyncHandler(async (req, res) => {
+      const { title } = req.body;
+      const { user, isPrivate, presetType } = {
+        user: req.user,
+        isPrivate: true,
+        presetType: "default",
+      };
+
+      const thumbnailURL = req.file === undefined ? null : req.file.path;
+      const preset = await addPreset(
+        title,
+        user,
+        isPrivate,
+        thumbnailURL,
+        presetType
+      );
+      res.json({ presetId: preset.shortId });
+    })
+  );
+
+  router.get(
+    "/defaultPresets",
+    asyncHandler(async (req, res) => {
+      const presets = await getDefaultPresets();
+      res.json(presets);
+    })
+  );
+
+  router.get(
     "/:userId",
     asyncHandler(async (req, res) => {
       const { userId } = req.params;
       const preset = await getPresetByUserId(userId);
       res.json(preset);
+    })
+  );
+
+  router.get(
+    "/defaultPreset/:presetId",
+    asyncHandler(async (req, res) => {
+      const { presetId } = req.params;
+      const preset = await getPresetByPresetId(presetId);
     })
   );
 
