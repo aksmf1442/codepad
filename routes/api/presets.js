@@ -258,6 +258,7 @@ module.exports = (app) => {
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const preset = await getPresetByPresetId(presetId);
+      res.json(preset);
     })
   );
 
