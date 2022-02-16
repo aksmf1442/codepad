@@ -15,6 +15,7 @@ const userSchema = new mongoose.Schema({
   },
   thumbnailURL: {
     type: String,
+    default: null,
   },
 });
 

@@ -30,6 +30,7 @@ const presetSchema = new mongoose.Schema(
     },
     thumbnailURL: {
       type: String,
+      default: null,
     },
   },
   {
