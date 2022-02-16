@@ -1,6 +1,8 @@
 const { Router } = require("express");
 const { asyncHandler } = require("../../utils");
 const { soundStore, imageStore, loginRequired } = require("../../middlewares");
+const { page, limit } = { page: 1, limit: 10 };
+const skip = (page - 1) * limit;
 
 const {
   getPresetByUserId,
@@ -107,9 +109,10 @@ module.exports = (app) => {
   router.get(
     "/:presetId/comments",
     asyncHandler(async (req, res) => {
-      console.log(1);
+      const { page, limit } = req.query;
       const { presetId } = req.params;
-      const comments = await getCommentsByPresetId(presetId);
+      const skip = (page - 1) * limit;
+      const comments = await getCommentsByPresetId(skip, limit, presetId);
 
       res.json(comments);
     })
@@ -123,7 +126,7 @@ module.exports = (app) => {
       const { text } = req.body;
       const user = req.user;
       await addComment(presetId, user, text);
-      const comments = await getCommentsByPresetId(presetId);
+      const comments = await getCommentsByPresetId(skip, limit, presetId);
 
       res.json(comments);
     })
@@ -137,7 +140,7 @@ module.exports = (app) => {
       const { commentId, text } = req.body;
       const user = req.user;
       await updateCommentByCommentId(commentId, text, user);
-      const comments = await getCommentsByPresetId(presetId);
+      const comments = await getCommentsByPresetId(skip, limit, presetId);
       res.json(comments);
     })
   );
@@ -150,7 +153,7 @@ module.exports = (app) => {
       const { commentId } = req.body;
       const user = req.user;
       await deleteCommentByCommentId(commentId, user);
-      const comments = await getCommentsByPresetId(presetId);
+      const comments = await getCommentsByPresetId(skip, limit, presetId);
       res.json(comments);
     })
   );

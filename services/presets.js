@@ -33,7 +33,6 @@ const getSoundSamplesByPreset = async (preset) => {
 };
 
 const parsePresetData = (preset, soundSamples) => {
-  console.log(preset.title);
   return {
     presetTitle: preset.title,
     presetId: preset.shortId,
@@ -150,7 +149,7 @@ const parseComments = (comments) => {
   return comments;
 };
 
-const getCommentsByPresetId = async (presetId) => {
+const getCommentsByPresetId = async (skip, limit, presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
@@ -161,6 +160,8 @@ const getCommentsByPresetId = async (presetId) => {
     .sort({
       updatedAt: "desc",
     })
+    .skip(skip)
+    .limit(limit)
     .populate("author");
 
   comments = parseComments(comments);
