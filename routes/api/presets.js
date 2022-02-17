@@ -8,6 +8,7 @@ const {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
+  getMyPresets,
   getDefaultPreset,
   getDefaultPresets,
   getTagsByPresetId,
@@ -72,6 +73,17 @@ module.exports = (app) => {
       );
 
       res.json({ message: "저장 완료" });
+    })
+  );
+
+  router.get(
+    "/myPresetList",
+    // loginRequired,
+    asyncHandler(async (req, res) => {
+      const user = await getUserByEmail("aksmf1442@gmail.com");
+      const presets = await getMyPresets(user);
+
+      res.json(presets);
     })
   );
 

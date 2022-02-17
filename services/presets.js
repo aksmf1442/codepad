@@ -115,18 +115,8 @@ const getCommunityCount = async (preset) => {
   return { viewCount, likeCount, commentCount };
 };
 
-const getPresetsByPresetId = async (presetId) => {
-  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
-
-  if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
-  }
-
-  let presets = await Preset.find({ author: preset.author })
-    .where("isPrivate")
-    .equals(false);
-
-  presets = await Promise.all(
+const parsePresetsData = async (presets) => {
+  return await Promise.all(
     presets.map(async (preset) => {
       const { viewCount, likeCount, commentCount } = await getCommunityCount(
         preset
@@ -143,6 +133,30 @@ const getPresetsByPresetId = async (presetId) => {
       };
     })
   );
+};
+
+const getMyPresets = async (user) => {
+  let presets = await Preset.find({ author: user }).sort({
+    updatedAt: "desc",
+  });
+
+  presets = await parsePresetsData(presets);
+
+  return presets;
+};
+
+const getPresetsByPresetId = async (presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+
+  let presets = await Preset.find({ author: preset.author })
+    .where("isPrivate")
+    .equals(false);
+
+  presets = await parsePresetsData(presets);
 
   return presets;
 };
@@ -392,6 +406,7 @@ module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
+  getMyPresets,
   getDefaultPreset,
   getDefaultPresets,
   getTagsByPresetId,
