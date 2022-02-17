@@ -254,7 +254,7 @@ module.exports = (app) => {
   );
 
   router.get(
-    "/defaultList",
+    "/defaultPresetList",
     asyncHandler(async (req, res) => {
       const { page, limit } = req.query;
       const skip = (page - 1) * limit;
