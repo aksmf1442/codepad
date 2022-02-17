@@ -20,7 +20,9 @@ const {
   getLikeClickedState,
   addInstrument,
   addPreset,
+  updatePresetByPresetId,
   addTag,
+  deleteTags,
   addForkByPresetId,
   getForkCountByPresetId,
 } = require("../../services/presets");
@@ -37,8 +39,7 @@ module.exports = (app) => {
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags } = req.body;
       const user = await getUserByEmail("aksmf1442@gmail.com");
-      const thumbnailURL =
-        req.file === undefined ? null : "api/" + req.file.path;
+      const thumbnailURL = !req.file ? undefined : "api/" + req.file.path;
       const presetType = "custom";
       const preset = await addPreset(
         title,
@@ -48,6 +49,31 @@ module.exports = (app) => {
         presetType
       );
 
+      for (let i = 0; i < tags.length; i++) {
+        await addTag(preset, tags[i]);
+      }
+
+      res.json({ presetId: preset.shortId });
+    })
+  );
+
+  router.put(
+    "/",
+    // loginRequired,
+    imageStore.single("img"),
+    asyncHandler(async (req, res, next) => {
+      const { title, isPrivate, tags, presetId } = req.body;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
+      const thumbnailURL = !req.file ? undefined : "api/" + req.file.path;
+      const preset = await updatePresetByPresetId(
+        presetId,
+        title,
+        user,
+        isPrivate,
+        thumbnailURL
+      );
+
+      await deleteTags(preset);
       for (let i = 0; i < tags.length; i++) {
         await addTag(preset, tags[i]);
       }
@@ -239,8 +265,7 @@ module.exports = (app) => {
         presetType: "default",
       };
 
-      const thumbnailURL =
-        req.file === undefined ? null : "api/" + req.file.path;
+      const thumbnailURL = !req.file ? undefined : "api/" + req.file.path;
       const preset = await addPreset(
         title,
         user,

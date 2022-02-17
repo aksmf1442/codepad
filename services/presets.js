@@ -324,6 +324,35 @@ const addPreset = async (title, user, isPrivate, thumbnailURL, presetType) => {
   return preset;
 };
 
+const updatePresetByPresetId = async (
+  presetId,
+  title,
+  user,
+  isPrivate,
+  thumbnailURL
+) => {
+  let preset = await Preset.findOne({ shortId: presetId });
+
+  if (preset.thumbnailURL & thumbnailURL) {
+    const startIndex = 4;
+    const deleteFilePath = user.thumbnailURL.substring(
+      startIndex,
+      preset.thumbnailURL.length
+    );
+    fs.unlinkSync("/" + deleteFilePath);
+  }
+
+  preset = await Preset.findOneAndUpdate(
+    { shortId: presetId },
+    {
+      title: !title ? preset.title : title,
+      isPrivate: isPrivate === undefined ? preset.isPrivate : isPrivate,
+      thumbnailURL: !thumbnailURL ? preset.thumbnailURL : thumbnailURL,
+    }
+  );
+  return preset;
+};
+
 const addInstrument = async (
   presetId,
   location,
@@ -359,6 +388,10 @@ const addInstrument = async (
 const addTag = async (preset, text) => {
   const tag = await Tag.create({ preset, text });
   return tag;
+};
+
+const deleteTags = async (preset) => {
+  await Tag.deleteMany({ preset });
 };
 
 const validateFirstFork = async (fork, preset) => {
@@ -434,7 +467,9 @@ module.exports = {
   getLikeClickedState,
   addInstrument,
   addPreset,
+  updatePresetByPresetId,
   addTag,
+  deleteTags,
   addForkByPresetId,
   visitPreset,
   getForkCountByPresetId,
