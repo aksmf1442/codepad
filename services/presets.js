@@ -210,7 +210,7 @@ const getCommentsByPresetId = async (skip, limit, presetId) => {
 
   let comments = await Comment.find({ preset })
     .sort({
-      updatedAt: "desc",
+      createdAt: "desc",
     })
     .skip(skip)
     .limit(limit)
