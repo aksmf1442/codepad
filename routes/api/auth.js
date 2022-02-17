@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const dotenv = require("dotenv");
 const passport = require("passport");
-const { setUserToken, asyncHandler } = require("../../utils");
+const { setUserToken, asyncHandler, getUserByEmail } = require("../../utils");
 const {
   getUserProfileByUser,
   updateUserProfileByUser,
@@ -38,9 +38,9 @@ module.exports = (app) => {
 
   router.get(
     "/userProfile",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       const profile = getUserProfileByUser(user);
       res.json(profile);
     })
@@ -48,10 +48,10 @@ module.exports = (app) => {
 
   router.put(
     "/userProfile",
-    loginRequired,
+    // loginRequired,
     imageStore.single("img"),
     asyncHandler(async (req, res) => {
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       const thumbnailURL = req.file === undefined ? null : req.file.path;
       const { name } = req.body;
       const profile = await updateUserProfileByUser(user, thumbnailURL, name);

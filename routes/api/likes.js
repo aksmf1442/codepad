@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const { asyncHandler } = require("../../utils");
 const { getLikePresetsByUser } = require("../../services/likes");
-const { loginRequired } = require("../../middlewares");
+const { loginRequired, getUserByEmail } = require("../../middlewares");
 
 const router = Router();
 
@@ -10,10 +10,10 @@ module.exports = (app) => {
 
   router.get(
     "/",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { page, limit } = req.query;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       const skip = (page - 1) * limit;
       const likes = await getLikePresetsByUser(skip, limit, user);
 

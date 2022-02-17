@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { asyncHandler } = require("../../utils");
+const { asyncHandler, getUserByEmail } = require("../../utils");
 const { soundStore, imageStore, loginRequired } = require("../../middlewares");
 const { page, limit } = { page: 1, limit: 10 };
 const skip = (page - 1) * limit;
@@ -31,11 +31,11 @@ module.exports = (app) => {
 
   router.post(
     "/",
-    loginRequired,
+    // loginRequired,
     imageStore.single("img"),
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags } = req.body;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       const thumbnailURL = req.file === undefined ? null : req.file.path;
       const presetType = "custom";
       const preset = await addPreset(
@@ -57,7 +57,7 @@ module.exports = (app) => {
 
   router.post(
     "/soundUpload",
-    loginRequired,
+    // loginRequired,
     soundStore.single("sound"),
     asyncHandler(async (req, res) => {
       const { presetId, location, buttonType, soundType } = req.body;
@@ -120,11 +120,11 @@ module.exports = (app) => {
 
   router.post(
     "/:presetId/comments",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const { text } = req.body;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       await addComment(presetId, user, text);
       const comments = await getCommentsByPresetId(skip, limit, presetId);
 
@@ -134,11 +134,11 @@ module.exports = (app) => {
 
   router.put(
     "/:presetId/comments",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const { commentId, text } = req.body;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       await updateCommentByCommentId(commentId, text, user);
       const comments = await getCommentsByPresetId(skip, limit, presetId);
       res.json(comments);
@@ -147,11 +147,11 @@ module.exports = (app) => {
 
   router.delete(
     "/:presetId/comments",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
       const { commentId } = req.body;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       await deleteCommentByCommentId(commentId, user);
       const comments = await getCommentsByPresetId(skip, limit, presetId);
       res.json(comments);
@@ -160,10 +160,10 @@ module.exports = (app) => {
 
   router.get(
     "/:presetId/like",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       const click = false;
       const isClicked = await getLikeClickedState(click, presetId, user);
       res.json({ isClicked });
@@ -172,10 +172,10 @@ module.exports = (app) => {
 
   router.post(
     "/:presetId/like",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       const click = true;
       const isClicked = await getLikeClickedState(click, presetId, user);
 
@@ -195,10 +195,10 @@ module.exports = (app) => {
 
   router.post(
     "/:presetId/fork",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { presetId } = req.params;
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
       await addForkByPresetId(presetId, user);
       res.json({ message: "success" });
     })
@@ -214,12 +214,12 @@ module.exports = (app) => {
 
   router.post(
     "/defaultPreset",
-    loginRequired,
+    // loginRequired,
     imageStore.single("img"),
     asyncHandler(async (req, res) => {
       const { title } = req.body;
       const { user, isPrivate, presetType } = {
-        user: req.user,
+        user: await getUserByEmail("aksmf1442@gmail.com"),
         isPrivate: true,
         presetType: "default",
       };
