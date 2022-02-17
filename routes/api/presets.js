@@ -41,7 +41,6 @@ module.exports = (app) => {
       const presetType = "custom";
       const preset = await addPreset(
         title,
-        presetType,
         user,
         isPrivate,
         thumbnailURL,
