@@ -1,6 +1,5 @@
-const fs = require("fs");
-const { imageStore } = require("../middlewares/multer");
 const { User } = require("../models");
+const { deleteImgFile } = require("../utils/deleteFile");
 
 const getUserProfileByUser = (user) => {
   const profile = {
@@ -11,13 +10,8 @@ const getUserProfileByUser = (user) => {
 };
 
 const updateUserProfileByUser = async (user, thumbnailURL, name) => {
-  if (user.thumbnailURL & thumbnailURL) {
-    const startIndex = 4;
-    const deleteFilePath = user.thumbnailURL.substring(
-      startIndex,
-      user.thumbnailURL.length
-    );
-    fs.unlinkSync("/" + deleteFilePath);
+  if (user.thumbnailURL && thumbnailURL) {
+    deleteImgFile(user);
   }
   await User.findOneAndUpdate(
     { shortId: user.shortId },

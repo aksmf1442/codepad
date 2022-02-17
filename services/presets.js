@@ -10,6 +10,7 @@ const {
   Location,
   Fork,
 } = require("../models");
+const { deleteImgFile } = require("../utils/deleteFile");
 
 const getSoundSamplesByPreset = async (preset) => {
   let soundSamples = await Instrument.find({ preset })
@@ -333,13 +334,8 @@ const updatePresetByPresetId = async (
 ) => {
   let preset = await Preset.findOne({ shortId: presetId });
 
-  if (preset.thumbnailURL & thumbnailURL) {
-    const startIndex = 4;
-    const deleteFilePath = user.thumbnailURL.substring(
-      startIndex,
-      preset.thumbnailURL.length
-    );
-    fs.unlinkSync("/" + deleteFilePath);
+  if (preset.thumbnailURL && thumbnailURL) {
+    deleteImgFile(preset);
   }
 
   preset = await Preset.findOneAndUpdate(
