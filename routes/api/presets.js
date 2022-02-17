@@ -80,8 +80,10 @@ module.exports = (app) => {
     "/myPresetList",
     // loginRequired,
     asyncHandler(async (req, res) => {
+      const { page, limit } = req.query;
+      const skip = (page - 1) * limit;
       const user = await getUserByEmail("aksmf1442@gmail.com");
-      const presets = await getMyPresets(user);
+      const presets = await getMyPresets(skip, limit, user);
 
       res.json(presets);
     })
@@ -90,8 +92,10 @@ module.exports = (app) => {
   router.get(
     "/:presetId/list",
     asyncHandler(async (req, res) => {
+      const { page, limit } = req.query;
+      const skip = (page - 1) * limit;
       const { presetId } = req.params;
-      const presets = await getPresetsByPresetId(presetId);
+      const presets = await getPresetsByPresetId(skip, limit, presetId);
 
       res.json(presets);
     })
@@ -250,9 +254,11 @@ module.exports = (app) => {
   );
 
   router.get(
-    "/defaultPresets",
+    "/defaultList",
     asyncHandler(async (req, res) => {
-      const presets = await getDefaultPresets();
+      const { page, limit } = req.query;
+      const skip = (page - 1) * limit;
+      const presets = await getDefaultPresets(skip, limit);
       res.json(presets);
     })
   );

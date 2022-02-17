@@ -92,11 +92,14 @@ const getDefaultPreset = async () => {
   return parsePresetData(preset, soundSamples);
 };
 
-const getDefaultPresets = async () => {
+const getDefaultPresets = async (skip, limit) => {
   const presetType = "default";
-  let presets = await Preset.find({ presetType }).sort({
-    updatedAt: "desc",
-  });
+  let presets = await Preset.find({ presetType })
+    .sort({
+      updatedAt: "desc",
+    })
+    .skip(skip)
+    .limit(limit);
 
   presets = presets.map((preset) => {
     return {
@@ -135,17 +138,20 @@ const parsePresetsData = async (presets) => {
   );
 };
 
-const getMyPresets = async (user) => {
-  let presets = await Preset.find({ author: user }).sort({
-    updatedAt: "desc",
-  });
+const getMyPresets = async (skip, limit, user) => {
+  let presets = await Preset.find({ author: user })
+    .sort({
+      updatedAt: "desc",
+    })
+    .skip(skip)
+    .limit(limit);
 
   presets = await parsePresetsData(presets);
 
   return presets;
 };
 
-const getPresetsByPresetId = async (presetId) => {
+const getPresetsByPresetId = async (skip, limit, presetId) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
 
   if (!preset) {
@@ -154,7 +160,9 @@ const getPresetsByPresetId = async (presetId) => {
 
   let presets = await Preset.find({ author: preset.author })
     .where("isPrivate")
-    .equals(false);
+    .equals(false)
+    .skip(skip)
+    .limit(limit);
 
   presets = await parsePresetsData(presets);
 
