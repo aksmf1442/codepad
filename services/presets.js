@@ -128,6 +128,7 @@ const parsePresetsData = async (presets) => {
       return {
         presetId: preset.shortId,
         title: preset.title,
+        thumbnailImageURL: preset.thumbnailURL,
         reactions: {
           viewCount,
           likeCount,
