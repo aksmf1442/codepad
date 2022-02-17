@@ -22,6 +22,7 @@ const {
   addPreset,
   addTag,
   addForkByPresetId,
+  getForkCountByPresetId,
 } = require("../../services/presets");
 
 const router = Router();
@@ -195,6 +196,15 @@ module.exports = (app) => {
       const isClicked = await getLikeClickedState(click, presetId, user);
 
       res.json({ isClicked });
+    })
+  );
+
+  router.get(
+    "/:presetId/fork",
+    asyncHandler(async (req, res) => {
+      const { presetId } = req.params;
+      const forkCount = await getForkCountByPresetId(presetId);
+      res.json({ forkCount });
     })
   );
 

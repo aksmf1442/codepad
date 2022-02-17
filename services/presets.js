@@ -377,6 +377,12 @@ const validateFirstFork = async (fork, preset) => {
   }
 };
 
+const getForkCountByPresetId = async (presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  const fork = await Fork.findOne({ preset });
+  return fork.count;
+};
+
 const addForkByPresetId = async (presetId, user) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
   const fork = await Fork.findOne({ preset });
@@ -427,4 +433,5 @@ module.exports = {
   addTag,
   addForkByPresetId,
   visitPreset,
+  getForkCountByPresetId,
 };
