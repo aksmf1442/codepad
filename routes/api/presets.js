@@ -22,7 +22,6 @@ const {
   addPreset,
   addTag,
   addForkByPresetId,
-  visitPreset,
 } = require("../../services/presets");
 
 const router = Router();
@@ -196,16 +195,6 @@ module.exports = (app) => {
       const isClicked = await getLikeClickedState(click, presetId, user);
 
       res.json({ isClicked });
-    })
-  );
-
-  router.post(
-    "/:presetId/visit",
-    asyncHandler(async (req, res) => {
-      const { presetId } = req.params;
-      await visitPreset(presetId);
-
-      res.json({ message: "success" });
     })
   );
 

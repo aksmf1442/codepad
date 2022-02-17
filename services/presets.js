@@ -56,6 +56,7 @@ const getPresetByUserId = async (userId) => {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
+  await visitPreset(preset);
   const soundSamples = await getSoundSamplesByPreset(preset);
 
   return parsePresetData(preset[0], soundSamples);
@@ -68,6 +69,7 @@ const getPresetByPresetId = async (presetId) => {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
+  await visitPreset(preset);
   const soundSamples = await getSoundSamplesByPreset(preset);
 
   return parsePresetData(preset, soundSamples);
@@ -396,15 +398,9 @@ const addForkByPresetId = async (presetId, user) => {
   return fork;
 };
 
-const visitPreset = async (presetId) => {
-  const preset = await Preset.findOne({ shortId: presetId });
-
-  if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
-  }
-
+const visitPreset = async (preset) => {
   await Preset.updateOne(
-    { shortId: presetId },
+    { shortId: preset.shortId },
     {
       viewCount: preset.viewCount + 1,
     }
