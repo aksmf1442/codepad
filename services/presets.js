@@ -161,6 +161,7 @@ const getPresetsByPresetId = async (skip, limit, presetId) => {
   let presets = await Preset.find({ author: preset.author })
     .where("isPrivate")
     .equals(false)
+    .sort({ updatedAt: "desc" })
     .skip(skip)
     .limit(limit);
 
