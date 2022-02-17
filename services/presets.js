@@ -307,7 +307,7 @@ const getLikeClickedState = async (click, presetId, user) => {
 };
 
 const addPreset = async (title, user, isPrivate, thumbnailURL, presetType) => {
-  if (!title || !isPrivate) {
+  if (!title || isPrivate === undefined) {
     throw new Error("필수 정보 입력이 필요합니다.");
   }
   const size = 8;
@@ -380,7 +380,11 @@ const validateFirstFork = async (fork, preset) => {
 const getForkCountByPresetId = async (presetId) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
   const fork = await Fork.findOne({ preset });
-  return fork.count;
+  let forkCount = 0;
+  if (fork) {
+    forkCount = fork.count;
+  }
+  return forkCount;
 };
 
 const addForkByPresetId = async (presetId, user) => {
@@ -392,7 +396,6 @@ const addForkByPresetId = async (presetId, user) => {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
-  await validateFirstFork(fork, preset);
   await addPreset(
     preset.title,
     user,
@@ -400,6 +403,7 @@ const addForkByPresetId = async (presetId, user) => {
     preset.thumbnailURL,
     presetType
   );
+  await validateFirstFork(fork, preset);
 
   return fork;
 };
