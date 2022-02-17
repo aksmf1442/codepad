@@ -44,7 +44,7 @@ const parsePresetData = (preset, soundSamples) => {
 
 const getPresetByUserId = async (userId) => {
   const user = await User.findOne({ shortId: userId });
-  const preset = await Preset.find({ author: user })
+  let preset = await Preset.find({ author: user })
     .where("isPrivate")
     .equals(false)
     .sort({
@@ -52,14 +52,14 @@ const getPresetByUserId = async (userId) => {
     })
     .limit(1);
 
+  preset = preset[0];
   if (!preset) {
     throw new Error("프리셋 정보가 없습니다.");
   }
-
   await visitPreset(preset);
   const soundSamples = await getSoundSamplesByPreset(preset);
 
-  return parsePresetData(preset[0], soundSamples);
+  return parsePresetData(preset, soundSamples);
 };
 
 const getPresetByPresetId = async (presetId) => {
