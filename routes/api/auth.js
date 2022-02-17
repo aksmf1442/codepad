@@ -52,7 +52,8 @@ module.exports = (app) => {
     imageStore.single("img"),
     asyncHandler(async (req, res) => {
       const user = await getUserByEmail("aksmf1442@gmail.com");
-      const thumbnailURL = req.file === undefined ? null : req.file.path;
+      const thumbnailURL =
+        req.file === undefined ? null : "api/" + req.file.path;
       const { name } = req.body;
       const profile = await updateUserProfileByUser(user, thumbnailURL, name);
       res.json(profile);

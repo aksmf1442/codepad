@@ -37,7 +37,8 @@ module.exports = (app) => {
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags } = req.body;
       const user = await getUserByEmail("aksmf1442@gmail.com");
-      const thumbnailURL = req.file === undefined ? null : req.file.path;
+      const thumbnailURL =
+        req.file === undefined ? null : "api/" + req.file.path;
       const presetType = "custom";
       const preset = await addPreset(
         title,
@@ -61,7 +62,7 @@ module.exports = (app) => {
     soundStore.single("sound"),
     asyncHandler(async (req, res) => {
       const { presetId, location, buttonType, soundType } = req.body;
-      const soundSampleURL = req.file.path;
+      const soundSampleURL = "api/" + req.file.path;
 
       await addInstrument(
         presetId,
@@ -235,7 +236,8 @@ module.exports = (app) => {
         presetType: "default",
       };
 
-      const thumbnailURL = req.file === undefined ? null : req.file.path;
+      const thumbnailURL =
+        req.file === undefined ? null : "api/" + req.file.path;
       const preset = await addPreset(
         title,
         user,
