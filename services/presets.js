@@ -396,6 +396,8 @@ const deleteInstrument = async (preset, instrument, soundSampleURL) => {
 const updateSoundFileToInstrument = async (
   preset,
   instrument,
+  buttonType,
+  soundType,
   soundSampleURL,
   newSoundSampleURL,
   x,
@@ -464,6 +466,8 @@ const updateInstrument = async (
       updateSoundFileToInstrument(
         preset,
         instrument,
+        buttonType,
+        soundType,
         soundSampleURL,
         newSoundSampleURL,
         x,
