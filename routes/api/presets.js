@@ -26,6 +26,7 @@ const {
   deleteTags,
   addForkByPresetId,
   getForkCountByPresetId,
+  getPresetCurrentPage,
 } = require("../../services/presets");
 
 const router = Router();
@@ -263,6 +264,16 @@ module.exports = (app) => {
       const user = await getUserByEmail("aksmf1442@gmail.com");
       await addForkByPresetId(presetId, user);
       res.json({ message: "success" });
+    })
+  );
+
+  router.get(
+    "/:presetId/page",
+    asyncHandler(async (req, res) => {
+      const { presetId } = req.params;
+      const { limit } = req.query;
+      const page = await getPresetCurrentPage(presetId, limit);
+      res.json({ page });
     })
   );
 

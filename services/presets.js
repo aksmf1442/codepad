@@ -567,6 +567,20 @@ const visitPreset = async (preset) => {
   return preset;
 };
 
+const getPresetCurrentPage = async (presetId, limit) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  const author = await User.findOne({ shortId: preset.author.shortId });
+  const presets = await Preset.find({ author }).sort({ updatedAt: "desc" });
+  let page;
+  for (let i = 0; i < presets.length; i++) {
+    if (presets[i] === preset) {
+      page = Math.abs(i / limit) + 1;
+      page += "X" + ((i % limit) + 1);
+    }
+  }
+  return page;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
@@ -590,4 +604,5 @@ module.exports = {
   addForkByPresetId,
   visitPreset,
   getForkCountByPresetId,
+  getPresetCurrentPage,
 };
