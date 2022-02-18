@@ -358,7 +358,7 @@ const addInstrument = async (
   soundSampleURL
 ) => {
   if (!presetId || !location || !buttonType || !soundType || !soundSampleURL) {
-    throw new Error("필수 정보 입력이 필요합니다.");
+    return;
   }
   const soundSample = await SoundSample.create({
     shortId: nanoid(),
