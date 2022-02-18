@@ -25,8 +25,7 @@ module.exports = (app) => {
     asyncHandler(async (req, res) => {
       const { page, limit, presetIds } = req.query;
       const skip = (page - 1) * limit;
-      const parsePresetIds = JSON.parse(presetIds);
-      const presets = await getRecentlyUsedPresets(parsePresetIds, skip, limit);
+      const presets = await getRecentlyUsedPresets(presetIds, skip, limit);
       res.json(presets);
     })
   );

@@ -60,6 +60,6 @@ module.exports = (app) => {
   );
 
   router.get("/logout", (req, res) => {
-    res.cookie("token", null, { maxAge: 0 }).json(true);
+    res.cookie("token", null, { maxAge: 0 }).json({ isLogout: true });
   });
 };
