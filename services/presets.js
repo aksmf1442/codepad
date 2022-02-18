@@ -359,6 +359,9 @@ const addInstrument = async (
 ) => {
   if (!presetId || !location || !buttonType || !soundType || !soundSampleURL) {
     // 나중에 수정해야 할지도 모름
+    if (soundSampleURL) {
+      deleteFile(soundSampleURL);
+    }
     return;
   }
   const [x, y] = location.split("X");
@@ -371,6 +374,7 @@ const addInstrument = async (
   });
 
   if (validateInstrument) {
+    deleteFile(soundSampleURL);
     throw new Error("해당 위치에 이미 사운드 값이 있습니다.");
   }
 
