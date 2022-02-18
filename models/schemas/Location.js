@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 
 const loactionSchema = new mongoose.Schema({
-  instrument: {
-    type: Schema.Types.ObjectId,
-    ref: "Instrument",
-    required: true,
-  },
   x: {
     type: Number,
     required: true,
