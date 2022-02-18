@@ -358,16 +358,26 @@ const addInstrument = async (
   soundSampleURL
 ) => {
   if (!presetId || !location || !buttonType || !soundType || !soundSampleURL) {
+    // 나중에 수정해야 할지도 모름
     return;
   }
+  const [x, y] = location.split("X");
+
+  const preset = await Preset.findOne({ shortId: presetId });
+  const validateInstrument = await Instrument.findOne({
+    preset,
+    xCoordinate: x,
+    yCoordinate: y,
+  });
+
+  if (validateInstrument) {
+    throw new Error("해당 위치에 이미 사운드 값이 있습니다.");
+  }
+
   const soundSample = await SoundSample.create({
     shortId: nanoid(),
     URL: soundSampleURL,
   });
-
-  const [x, y] = location.split("X");
-
-  const preset = await Preset.findOne({ shortId: presetId });
 
   const instrument = await Instrument.create({
     preset,
