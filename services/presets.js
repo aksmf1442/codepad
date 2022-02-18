@@ -250,15 +250,18 @@ const addComment = async (presetId, user, text) => {
 };
 
 const validateCommentUser = async (user, commentId) => {
-  const comment = await Comment.findOne({ shortId: commentId }).populate(
-    "author"
-  );
+  const comment = await Comment.findOne({ shortId: commentId })
+    .populate("author")
+    .populate({ path: "preset", populate: "author" });
 
   if (!comment) {
     throw new Error("댓글 정보가 없습니다.");
   }
 
-  if (user.shortId !== comment.author.shortId) {
+  if (
+    user.shortId !== comment.preset.author.shortId &&
+    user.shortId !== comment.author.shortId
+  ) {
     throw new Error("잘못된 접근입니다.");
   }
 };

@@ -1,7 +1,7 @@
 const { Router } = require("express");
-const { asyncHandler } = require("../../utils");
+const { asyncHandler, getUserByEmail } = require("../../utils");
 const { getLikePresetsByUser } = require("../../services/likes");
-const { loginRequired, getUserByEmail } = require("../../middlewares");
+const { loginRequired } = require("../../middlewares");
 
 const router = Router();
 

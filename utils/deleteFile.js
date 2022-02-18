@@ -1,7 +1,7 @@
 const fs = require("fs");
+const startIndex = 4;
 
 const deleteImgFile = (data) => {
-  const startIndex = 4;
   const deleteFilePath = data.thumbnailURL.substring(
     startIndex,
     data.thumbnailURL.length
@@ -9,4 +9,9 @@ const deleteImgFile = (data) => {
   fs.unlinkSync(deleteFilePath);
 };
 
-module.exports = { deleteImgFile };
+const deleteSoundFile = (sound) => {
+  const deleteFilePath = sound.URL.substring(startIndex, data.URL.length);
+  fs.unlinkSync(deleteFilePath);
+};
+
+module.exports = { deleteImgFile, deleteSoundFile };

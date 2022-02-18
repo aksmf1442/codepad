@@ -5,6 +5,7 @@ const getUserProfileByUser = (user) => {
   const profile = {
     name: user.name,
     thumbnailURL: user.thumbnailURL,
+    userId: user.shortId,
   };
   return profile;
 };
