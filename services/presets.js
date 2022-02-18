@@ -397,7 +397,9 @@ const updateSoundFileToInstrument = async (
   preset,
   instrument,
   soundSampleURL,
-  newSoundSampleURL
+  newSoundSampleURL,
+  x,
+  y
 ) => {
   deleteFile(soundSampleURL);
   await SoundSample.findOneAndUpdate(
@@ -463,7 +465,9 @@ const updateInstrument = async (
         preset,
         instrument,
         soundSampleURL,
-        newSoundSampleURL
+        newSoundSampleURL,
+        x,
+        y
       );
     } else {
       updateOnlyTextDataToInstrument(preset, x, y, buttonType, soundType);
