@@ -7,21 +7,18 @@ const {
   Comment,
   Tag,
   SoundSample,
-  Location,
   Fork,
 } = require("../models");
 const { deleteImgFile } = require("../utils/deleteFile");
 
 const getSoundSamplesByPreset = async (preset) => {
-  let soundSamples = await Instrument.find({ preset })
-    .populate("soundSample")
-    .populate("location");
+  let soundSamples = await Instrument.find({ preset }).populate("soundSample");
 
   soundSamples = soundSamples.map((ins) => {
     return {
       location: {
-        x: ins.location.x,
-        y: ins.location.y,
+        x: ins.xCoordinate,
+        y: ins.yCoordinate,
       },
       soundSampleId: ins.soundSample.shortId,
       soundSampleURL: ins.soundSample.URL,
@@ -365,17 +362,16 @@ const addInstrument = async (
     shortId: nanoid(),
     URL: soundSampleURL,
   });
-  let parseLocation = location.split("X");
-  parseLocation = await Location.create({
-    x: parseLocation[0],
-    y: parseLocation[1],
-  });
+
+  const [x, y] = location.split("X");
+
   const preset = await Preset.findOne({ shortId: presetId });
 
   const instrument = await Instrument.create({
     preset,
     soundSample,
-    location: parseLocation,
+    xCoordinate: x,
+    yCoordinate: y,
     buttonType,
     soundType,
   });
@@ -393,7 +389,27 @@ const updateInstrument = async (
 ) => {
   const preset = await Preset.findOne({ shortId: presetId });
   const [x, y] = location.split("X");
-  //작업중 - location 값 바꿔야 함
+  const instrument = await Instrument.findOne({
+    preset,
+    xCoordinate: x,
+    yCoordinate: y,
+  });
+
+  if (instrument) {
+    if (!newSoundSampleURL && !soundSampleURL) {
+      // 기존 파일 및 DB 삭제
+    } else if (newSoundSampleURL) {
+      // 기존의 파일 지우고, 사운드 파일 교체
+    } else {
+      // 다른 데이터 값만 바꾸기
+    }
+  } else {
+    if (newSoundSampleURL) {
+      // instrument 새로 생성
+    } else {
+      // 아무것도 하지 않기
+    }
+  }
 };
 
 const addTag = async (preset, text) => {

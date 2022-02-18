@@ -12,9 +12,12 @@ const instrumentSchema = new mongoose.Schema({
     ref: "SoundSample",
     required: true,
   },
-  location: {
-    type: Schema.Types.ObjectId,
-    ref: "Location",
+  xCoordinate: {
+    type: String,
+    required: true,
+  },
+  yCoordinate: {
+    type: String,
     required: true,
   },
   buttonType: {
