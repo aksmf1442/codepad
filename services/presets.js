@@ -9,7 +9,7 @@ const {
   SoundSample,
   Fork,
 } = require("../models");
-const { deleteImgFile } = require("../utils/deleteFile");
+const { deleteFile } = require("../utils/deleteFile");
 
 const getSoundSamplesByPreset = async (preset) => {
   let soundSamples = await Instrument.find({ preset }).populate("soundSample");
@@ -336,7 +336,7 @@ const updatePresetByPresetId = async (
   let preset = await Preset.findOne({ shortId: presetId });
 
   if (preset.thumbnailURL && thumbnailURL) {
-    deleteImgFile(preset);
+    deleteFile(preset.thumbnailURL);
   }
 
   preset = await Preset.findOneAndUpdate(
@@ -381,6 +381,64 @@ const addInstrument = async (
   return instrument;
 };
 
+const deleteInstrument = async (preset, instrument, soundSampleURL) => {
+  deleteFile(soundSampleURL);
+  await SoundSample.findOneAndDelete({
+    shortId: instrument.soundSample.shortId,
+  });
+  await Instrument.findOneAndDelete({
+    preset,
+    xCoordinate: x,
+    yCoordinate: y,
+  });
+};
+
+const updateSoundFileToInstrument = async (
+  preset,
+  instrument,
+  soundSampleURL,
+  newSoundSampleURL
+) => {
+  deleteFile(soundSampleURL);
+  await SoundSample.findOneAndUpdate(
+    { shortId: instrument.soundSample.shortId },
+    {
+      URL: newSoundSampleURL,
+    }
+  );
+  await Instrument.findOneAndUpdate(
+    {
+      preset,
+      xCoordinate: x,
+      yCoordinate: y,
+    },
+    {
+      buttonType,
+      soundType,
+    }
+  );
+};
+
+const updateOnlyTextDataToInstrument = async (
+  preset,
+  x,
+  y,
+  buttonType,
+  soundType
+) => {
+  await Instrument.findOneAndUpdate(
+    {
+      preset,
+      xCoordinate: x,
+      yCoordinate: y,
+    },
+    {
+      buttonType,
+      soundType,
+    }
+  );
+};
+
 const updateInstrument = async (
   presetId,
   location,
@@ -395,21 +453,30 @@ const updateInstrument = async (
     preset,
     xCoordinate: x,
     yCoordinate: y,
-  });
+  }).populate("soundSample");
 
   if (instrument) {
     if (!newSoundSampleURL && !soundSampleURL) {
-      // 기존 파일 및 DB 삭제
+      deleteInstrument(preset, instrument, soundSampleURL);
     } else if (newSoundSampleURL) {
-      // 기존의 파일 지우고, 사운드 파일 교체
+      updateSoundFileToInstrument(
+        preset,
+        instrument,
+        soundSampleURL,
+        newSoundSampleURL
+      );
     } else {
-      // 다른 데이터 값만 바꾸기
+      updateOnlyTextDataToInstrument(preset, x, y, buttonType, soundType);
     }
   } else {
     if (newSoundSampleURL) {
-      // instrument 새로 생성
-    } else {
-      // 아무것도 하지 않기
+      await addInstrument(
+        preset.shortId,
+        location,
+        buttonType,
+        soundType,
+        newSoundSampleURL
+      );
     }
   }
 };

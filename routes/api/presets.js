@@ -119,7 +119,7 @@ module.exports = (app) => {
         newSoundSampleURL
       );
 
-      res.json({ message: "저장 완료" });
+      res.json({ message: "수정 완료" });
     })
   );
 

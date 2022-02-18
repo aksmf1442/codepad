@@ -1,5 +1,5 @@
 const { User } = require("../models");
-const { deleteImgFile } = require("../utils/deleteFile");
+const { deleteFile } = require("../utils/deleteFile");
 
 const getUserProfileByUser = (user) => {
   const profile = {
@@ -12,7 +12,7 @@ const getUserProfileByUser = (user) => {
 
 const updateUserProfileByUser = async (user, thumbnailURL, name) => {
   if (user.thumbnailURL && thumbnailURL) {
-    deleteImgFile(user);
+    deleteFile(user.thumbnailURL);
   }
   await User.findOneAndUpdate(
     { shortId: user.shortId },
