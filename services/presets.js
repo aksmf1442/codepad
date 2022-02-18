@@ -32,6 +32,7 @@ const getSoundSamplesByPreset = async (preset) => {
 
 const parsePresetData = (preset, soundSamples) => {
   return {
+    userId: preset.author.id,
     presetTitle: preset.title,
     presetId: preset.shortId,
     areaSize: preset.size,
@@ -48,7 +49,8 @@ const getPresetByUserId = async (userId) => {
     .sort({
       updatedAt: "desc",
     })
-    .limit(1);
+    .limit(1)
+    .populate("author");
 
   preset = preset[0];
   if (!preset) {
@@ -61,7 +63,7 @@ const getPresetByUserId = async (userId) => {
 };
 
 const getPresetByPresetId = async (presetId) => {
-  const preset = await Preset.findOne({ shortId: presetId });
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
 
   if (!preset) {
     throw new Error("프리셋 정보가 없습니다.");

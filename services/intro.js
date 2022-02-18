@@ -59,11 +59,19 @@ const getPopularPresets = async (skip, limit) => {
 const sortRecentlyUsedPresets = async (presets) => {
   const recentlyUsedPresets = await Promise.all(
     presets.map(async (presetId) => {
-      const preset = await Preset.findOne({ shortId: presetId });
+      const preset = await Preset.findOne({ shortId: presetId }).populate(
+        "author"
+      );
       if (!preset) {
         throw new Error("프리셋 정보가 없습니다.");
       }
-      return preset;
+      return {
+        presetId: preset.shortId,
+        userId: preset.author.shortId,
+        thumbnailURL: preset.thumbnailURL,
+        title: preset.title,
+        author: preset.author.name,
+      };
     })
   );
 
