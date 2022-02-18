@@ -84,6 +84,8 @@ const sortRecentlyUsedPresets = async (presets) => {
 const getRecentlyUsedPresets = async (presets, skip, limit) => {
   if (presets) {
     presets = JSON.parse(presets);
+  } else {
+    return [];
   }
   const recentlyUsedPresets = await sortRecentlyUsedPresets(presets);
 
