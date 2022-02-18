@@ -383,6 +383,19 @@ const addInstrument = async (
   return instrument;
 };
 
+const updateInstrument = async (
+  presetId,
+  location,
+  buttonType,
+  soundType,
+  soundSampleURL,
+  newSoundSampleURL
+) => {
+  const preset = await Preset.findOne({ shortId: presetId });
+  const [x, y] = location.split("X");
+  //작업중 - location 값 바꿔야 함
+};
+
 const addTag = async (preset, text) => {
   const tag = await Tag.create({ preset, text });
   return tag;
@@ -464,6 +477,7 @@ module.exports = {
   deleteCommentByCommentId,
   getLikeClickedState,
   addInstrument,
+  updateInstrument,
   addPreset,
   updatePresetByPresetId,
   addTag,

@@ -19,6 +19,7 @@ const {
   deleteCommentByCommentId,
   getLikeClickedState,
   addInstrument,
+  updateInstrument,
   addPreset,
   updatePresetByPresetId,
   addTag,

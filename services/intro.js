@@ -112,7 +112,7 @@ const skipAndLimitArtists = (artists, skip, limit) => {
     const user = artists[i];
     popularArtists.push({
       userId: user.userId,
-      name: user.name,
+      author: user.name,
       thumbnailURL: user.thumbnailURL,
     });
   }
