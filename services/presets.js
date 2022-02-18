@@ -16,10 +16,7 @@ const getSoundSamplesByPreset = async (preset) => {
 
   soundSamples = soundSamples.map((ins) => {
     return {
-      location: {
-        x: ins.xCoordinate,
-        y: ins.yCoordinate,
-      },
+      location: ins.xCoordinate + "X" + ins.yCoordinate,
       soundSampleId: ins.soundSample.shortId,
       soundSampleURL: ins.soundSample.URL,
       buttonType: ins.buttonType,
