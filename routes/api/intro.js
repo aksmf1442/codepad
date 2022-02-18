@@ -23,10 +23,10 @@ module.exports = (app) => {
   router.get(
     "/recentlyUsed",
     asyncHandler(async (req, res) => {
-      const { page, limit } = req.query;
+      const { page, limit, presetIds } = req.query;
       const skip = (page - 1) * limit;
-      const presetIdArray = req.body.presetId;
-      const presets = await getRecentlyUsedPresets(presetIdArray, skip, limit);
+      const parsePresetIds = JSON.parse(presetIds);
+      const presets = await getRecentlyUsedPresets(parsePresetIds, skip, limit);
       res.json(presets);
     })
   );

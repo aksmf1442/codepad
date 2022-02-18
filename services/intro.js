@@ -61,7 +61,7 @@ const sortRecentlyUsedPresets = async (presets) => {
     presets.map(async (presetId) => {
       const preset = await Preset.findOne({ shortId: presetId });
       if (!preset) {
-        throw new Error("");
+        throw new Error("프리셋 정보가 없습니다.");
       }
       return preset;
     })
