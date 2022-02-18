@@ -98,7 +98,7 @@ const getArtistsByArtistName = async (skip, limit, artist) => {
     return {
       userId: user.shortId,
       thumbnailURL: user.thumbnailURL,
-      name: user.name,
+      author: user.name,
     };
   });
 
