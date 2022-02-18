@@ -381,8 +381,8 @@ const addInstrument = async (
   return instrument;
 };
 
-const deleteInstrument = async (preset, instrument, soundSampleURL) => {
-  deleteFile(soundSampleURL);
+const deleteInstrument = async (preset, instrument, x, y) => {
+  deleteFile(instrument.soundSample.URL);
   await SoundSample.findOneAndDelete({
     shortId: instrument.soundSample.shortId,
   });
@@ -461,7 +461,7 @@ const updateInstrument = async (
 
   if (instrument) {
     if (!newSoundSampleURL && !soundSampleURL) {
-      deleteInstrument(preset, instrument, soundSampleURL);
+      deleteInstrument(preset, instrument, x, y);
     } else if (newSoundSampleURL) {
       updateSoundFileToInstrument(
         preset,

@@ -14,7 +14,7 @@ const commentSchema = new mongoose.Schema(
     },
     preset: {
       type: Schema.Types.ObjectId,
-      ref: "Perset",
+      ref: "Preset",
       required: true,
     },
     text: {
