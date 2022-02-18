@@ -573,7 +573,7 @@ const getPresetCurrentPage = async (presetId, limit) => {
   const presets = await Preset.find({ author }).sort({ updatedAt: "desc" });
   let page;
   for (let i = 0; i < presets.length; i++) {
-    if (presets[i] === preset) {
+    if (presets[i].shortId === preset.shortId) {
       page = Math.abs(i / limit) + 1;
       page += "X" + ((i % limit) + 1);
     }
