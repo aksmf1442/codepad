@@ -331,7 +331,6 @@ const addPreset = async (title, user, isPrivate, thumbnailURL, presetType) => {
 const updatePresetByPresetId = async (
   presetId,
   title,
-  user,
   isPrivate,
   thumbnailURL
 ) => {

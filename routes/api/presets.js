@@ -39,7 +39,7 @@ module.exports = (app) => {
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags } = req.body;
       const user = await getUserByEmail("aksmf1442@gmail.com");
-      const thumbnailURL = !req.file ? undefined : "api/" + req.file.path;
+      const thumbnailURL = !req.file ? undefined : req.file.path;
       const presetType = "custom";
       const preset = await addPreset(
         title,
@@ -63,12 +63,10 @@ module.exports = (app) => {
     imageStore.single("img"),
     asyncHandler(async (req, res, next) => {
       const { title, isPrivate, tags, presetId } = req.body;
-      const user = await getUserByEmail("aksmf1442@gmail.com");
-      const thumbnailURL = !req.file ? undefined : "api/" + req.file.path;
+      const thumbnailURL = !req.file ? undefined : req.file.path;
       const preset = await updatePresetByPresetId(
         presetId,
         title,
-        user,
         isPrivate,
         thumbnailURL
       );
@@ -88,7 +86,7 @@ module.exports = (app) => {
     soundStore.single("sound"),
     asyncHandler(async (req, res) => {
       const { presetId, location, buttonType, soundType } = req.body;
-      const soundSampleURL = "api/" + req.file.path;
+      const soundSampleURL = !req.file ? undefined : req.file.path;
 
       await addInstrument(
         presetId,
@@ -96,6 +94,28 @@ module.exports = (app) => {
         buttonType,
         soundType,
         soundSampleURL
+      );
+
+      res.json({ message: "저장 완료" });
+    })
+  );
+
+  router.put(
+    "/soundUpload",
+    // loginRequired,
+    soundStore.single("sound"),
+    asyncHandler(async (req, res) => {
+      const { presetId, location, buttonType, soundType, soundSampleURL } =
+        req.body;
+      const newSoundSampleURL = !req.file ? undefined : req.file.path;
+
+      await updateInstrument(
+        presetId,
+        location,
+        buttonType,
+        soundType,
+        soundSampleURL,
+        newSoundSampleURL
       );
 
       res.json({ message: "저장 완료" });
@@ -265,7 +285,7 @@ module.exports = (app) => {
         presetType: "default",
       };
 
-      const thumbnailURL = !req.file ? undefined : "api/" + req.file.path;
+      const thumbnailURL = !req.file ? undefined : req.file.path;
       const preset = await addPreset(
         title,
         user,
