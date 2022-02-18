@@ -313,7 +313,7 @@ const addPreset = async (title, user, isPrivate, thumbnailURL, presetType) => {
   if (!title || isPrivate === undefined) {
     throw new Error("필수 정보 입력이 필요합니다.");
   }
-  const size = 8;
+  const size = 64;
   const preset = await Preset.create({
     shortId: nanoid(),
     presetType,
