@@ -78,7 +78,8 @@ const getDefaultPreset = async () => {
     .sort({
       updatedAt: "asc",
     })
-    .limit(1);
+    .limit(1)
+    .populate("author");
 
   const preset = presets[0];
 
