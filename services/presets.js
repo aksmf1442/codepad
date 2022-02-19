@@ -142,9 +142,10 @@ const parsePresetsData = async (presets) => {
 };
 
 const getMyPreset = async (user) => {
-  const preset = await Preset.findone({ author: user }).sort({
+  const preset = await Preset.findOne({ author: user }).sort({
     updatedAt: "desc",
   });
+  return preset;
 };
 
 const getMyPresets = async (skip, limit, user) => {
