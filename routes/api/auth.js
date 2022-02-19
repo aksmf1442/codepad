@@ -38,9 +38,10 @@ module.exports = (app) => {
 
   router.get(
     "/userProfile",
-    // loginRequired,
+    loginRequired,
     asyncHandler(async (req, res) => {
-      const user = await getUserByEmail("aksmf1442@gmail.com");
+      // const user = await getUserByEmail("aksmf1442@gmail.com");
+      const user = req.user;
       const profile = getUserProfileByUser(user);
       res.json(profile);
     })
@@ -48,10 +49,11 @@ module.exports = (app) => {
 
   router.put(
     "/userProfile",
-    // loginRequired,
+    loginRequired,
     imageStore.single("img"),
     asyncHandler(async (req, res) => {
-      const user = await getUserByEmail("aksmf1442@gmail.com");
+      // const user = await getUserByEmail("aksmf1442@gmail.com");
+      const user = req.user;
       const thumbnailURL = !req.file ? undefined : req.file.path;
       const { name } = req.body;
       const profile = await updateUserProfileByUser(user, thumbnailURL, name);
