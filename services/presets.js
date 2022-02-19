@@ -175,7 +175,7 @@ const getMyPresets = async (skip, limit, user) => {
     .skip(skip)
     .limit(limit);
 
-  const presetCount = await Preset.find({ author: user });
+  const presetCount = await Preset.countDocuments({ author: user });
   const maxPage = getMaxPage(presetCount, limit);
   presets = await parsePresetsData(presets, maxPage);
 
