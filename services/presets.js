@@ -9,7 +9,7 @@ const {
   SoundSample,
   Fork,
 } = require("../models");
-const { deleteFile } = require("../utils/deleteFile");
+const { deleteFile } = require("../utils");
 
 const getSoundSamplesByPreset = async (preset) => {
   let soundSamples = await Instrument.find({ preset }).populate("soundSample");
@@ -93,6 +93,11 @@ const getDefaultPreset = async () => {
   return parsePresetData(preset, soundSamples);
 };
 
+const getMaxPage = (count, limit) => {
+  let maxPage = Math.ceil(count / limit);
+  return maxPage === 0 ? 1 : maxPage;
+};
+
 const getDefaultPresets = async (skip, limit) => {
   const presetType = "default";
   let presets = await Preset.find({ presetType })
@@ -102,11 +107,15 @@ const getDefaultPresets = async (skip, limit) => {
     .skip(skip)
     .limit(limit);
 
+  const presetCount = await Preset.countDocuments({ presetType });
+  const maxPage = getMaxPage(presetCount, limit);
+
   presets = presets.map((preset) => {
     return {
       presetId: preset.shortId,
       title: preset.title,
       thumbnailURL: preset.thumbnailURL,
+      maxPage,
     };
   });
 
@@ -120,7 +129,7 @@ const getCommunityCount = async (preset) => {
   return { viewCount, likeCount, commentCount };
 };
 
-const parsePresetsData = async (presets) => {
+const parsePresetsData = async (presets, maxPage) => {
   return await Promise.all(
     presets.map(async (preset) => {
       const { viewCount, likeCount, commentCount } = await getCommunityCount(
@@ -136,6 +145,7 @@ const parsePresetsData = async (presets) => {
           likeCount,
           commentCount,
         },
+        maxPage,
       };
     })
   );
@@ -165,7 +175,9 @@ const getMyPresets = async (skip, limit, user) => {
     .skip(skip)
     .limit(limit);
 
-  presets = await parsePresetsData(presets);
+  const presetCount = await Preset.find({ author: user });
+  const maxPage = getMaxPage(presetCount, limit);
+  presets = await parsePresetsData(presets, maxPage);
 
   return presets;
 };
@@ -184,7 +196,11 @@ const getPresetsByPresetId = async (skip, limit, presetId) => {
     .skip(skip)
     .limit(limit);
 
-  presets = await parsePresetsData(presets);
+  const presetCount = await Preset.countDocuments({ author: preset.author })
+    .where("isPrivate")
+    .equals(false);
+  const maxPage = getMaxPage(presetCount, limit);
+  presets = await parsePresetsData(presets, maxPage);
 
   return presets;
 };
