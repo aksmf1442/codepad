@@ -179,7 +179,12 @@ const getTagsByPresetId = async (presetId) => {
   }
 
   let tags = await Tag.find({ preset });
-  tags = tags.map((tag) => tag.text);
+  tags = tags.map((tag) => {
+    return {
+      tagId: tag.shortId,
+      text: tag.text,
+    };
+  });
 
   return tags;
 };
@@ -502,7 +507,7 @@ const updateInstrument = async (
 };
 
 const addTag = async (preset, text) => {
-  const tag = await Tag.create({ preset, text });
+  const tag = await Tag.create({ shortId: nanoid(), preset, text });
   return tag;
 };
 
