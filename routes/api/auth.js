@@ -68,7 +68,6 @@ module.exports = (app) => {
 
   router.get(
     "/userProfile/:userId",
-    loginRequired,
     asyncHandler(async (req, res) => {
       const { userId } = req.params;
       const user = await getUserByUserId(userId);
