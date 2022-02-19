@@ -57,7 +57,7 @@ const getPopularPresets = async (skip, limit) => {
 };
 
 const sortRecentlyUsedPresets = async (presets) => {
-  const recentlyUsedPresets = await Promise.all(
+  let recentlyUsedPresets = await Promise.all(
     presets.map(async (presetId) => {
       const preset = await Preset.findOne({ shortId: presetId }).populate(
         "author"
@@ -74,7 +74,6 @@ const sortRecentlyUsedPresets = async (presets) => {
       };
     })
   );
-
   recentlyUsedPresets = recentlyUsedPresets.reverse();
   return recentlyUsedPresets;
 };
