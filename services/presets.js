@@ -29,7 +29,7 @@ const getSoundSamplesByPreset = async (preset) => {
 
 const parsePresetData = (preset, soundSamples) => {
   return {
-    userId: preset.author.id,
+    userId: preset.author.shortid,
     presetTitle: preset.title,
     isPrivate: preset.isPrivate,
     presetId: preset.shortId,
