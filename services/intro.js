@@ -75,9 +75,7 @@ const sortRecentlyUsedPresets = async (presets) => {
     })
   );
 
-  recentlyUsedPresets.sort((a, b) => {
-    return b.updatedAt - a.updatedAt;
-  });
+  recentlyUsedPresets = recentlyUsedPresets.reverse();
   return recentlyUsedPresets;
 };
 
