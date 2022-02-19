@@ -31,6 +31,7 @@ const parsePresetData = (preset, soundSamples) => {
   return {
     userId: preset.author.id,
     presetTitle: preset.title,
+    isPrivate: preset.isPrivate,
     presetId: preset.shortId,
     areaSize: preset.size,
     thumbnailURL: preset.thumbnailURL,
