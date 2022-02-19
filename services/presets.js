@@ -52,7 +52,7 @@ const getPresetByUserId = async (userId) => {
 
   preset = preset[0];
   if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
+    return [];
   }
   await visitPreset(preset);
   const soundSamples = await getSoundSamplesByPreset(preset);
@@ -85,7 +85,7 @@ const getDefaultPreset = async () => {
   const preset = presets[0];
 
   if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
+    return [];
   }
 
   const soundSamples = await getSoundSamplesByPreset(preset);
@@ -158,7 +158,7 @@ const getMyPreset = async (user) => {
     })
     .populate("author");
   if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
+    return [];
   }
 
   await visitPreset(preset);
