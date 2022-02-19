@@ -106,6 +106,7 @@ const getDefaultPresets = async (skip, limit) => {
     return {
       presetId: preset.shortId,
       title: preset.title,
+      thumbnailURL: preset.thumbnailURL,
     };
   });
 
@@ -138,6 +139,12 @@ const parsePresetsData = async (presets) => {
       };
     })
   );
+};
+
+const getMyPreset = async (user) => {
+  const preset = await Preset.findone({ author: user }).sort({
+    updatedAt: "desc",
+  });
 };
 
 const getMyPresets = async (skip, limit, user) => {
@@ -591,6 +598,7 @@ module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
+  getMyPreset,
   getMyPresets,
   getDefaultPreset,
   getDefaultPresets,
