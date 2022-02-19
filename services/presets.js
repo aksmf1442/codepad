@@ -115,9 +115,10 @@ const getDefaultPresets = async (skip, limit) => {
       presetId: preset.shortId,
       title: preset.title,
       thumbnailURL: preset.thumbnailURL,
-      maxPage,
     };
   });
+
+  presets = { presetList: presets, maxPage };
 
   return presets;
 };
@@ -129,7 +130,7 @@ const getCommunityCount = async (preset) => {
   return { viewCount, likeCount, commentCount };
 };
 
-const parsePresetsData = async (presets, maxPage) => {
+const parsePresetsData = async (presets) => {
   return await Promise.all(
     presets.map(async (preset) => {
       const { viewCount, likeCount, commentCount } = await getCommunityCount(
@@ -145,7 +146,6 @@ const parsePresetsData = async (presets, maxPage) => {
           likeCount,
           commentCount,
         },
-        maxPage,
       };
     })
   );
@@ -177,8 +177,8 @@ const getMyPresets = async (skip, limit, user) => {
 
   const presetCount = await Preset.countDocuments({ author: user });
   const maxPage = getMaxPage(presetCount, limit);
-  presets = await parsePresetsData(presets, maxPage);
-
+  presets = await parsePresetsData(presets);
+  presets = { presetList: presets, maxPage };
   return presets;
 };
 
@@ -200,8 +200,8 @@ const getPresetsByPresetId = async (skip, limit, presetId) => {
     .where("isPrivate")
     .equals(false);
   const maxPage = getMaxPage(presetCount, limit);
-  presets = await parsePresetsData(presets, maxPage);
-
+  presets = await parsePresetsData(presets);
+  presets = { presetList: presets, maxPage };
   return presets;
 };
 
