@@ -1,7 +1,12 @@
 const { Router } = require("express");
 const dotenv = require("dotenv");
 const passport = require("passport");
-const { setUserToken, asyncHandler, getUserByEmail } = require("../../utils");
+const {
+  setUserToken,
+  asyncHandler,
+  getUserByEmail,
+  getUserByUserId,
+} = require("../../utils");
 const {
   getUserProfileByUser,
   updateUserProfileByUser,
@@ -57,6 +62,17 @@ module.exports = (app) => {
       const thumbnailURL = !req.file ? undefined : req.file.path;
       const { name } = req.body;
       const profile = await updateUserProfileByUser(user, thumbnailURL, name);
+      res.json(profile);
+    })
+  );
+
+  router.get(
+    "/userProfile/:userId",
+    loginRequired,
+    asyncHandler(async (req, res) => {
+      const { userId } = req.params;
+      const user = await getUserByUserId(userId);
+      const profile = getUserProfileByUser(user);
       res.json(profile);
     })
   );
