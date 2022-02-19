@@ -151,6 +151,7 @@ const getMyPreset = async (user) => {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
+  await visitPreset(preset);
   const soundSamples = await getSoundSamplesByPreset(preset);
 
   return parsePresetData(preset, soundSamples);
