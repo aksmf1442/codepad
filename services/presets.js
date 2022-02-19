@@ -142,10 +142,16 @@ const parsePresetsData = async (presets) => {
 };
 
 const getMyPreset = async (user) => {
-  const preset = await Preset.findOne({ author: user }).sort({
+  let preset = await Preset.findOne({ author: user }).sort({
     updatedAt: "desc",
   });
-  return preset;
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+
+  const soundSamples = await getSoundSamplesByPreset(preset);
+
+  return parsePresetData(preset, soundSamples);
 };
 
 const getMyPresets = async (skip, limit, user) => {
