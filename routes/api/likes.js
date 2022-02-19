@@ -10,11 +10,11 @@ module.exports = (app) => {
 
   router.get(
     "/",
-    loginRequired,
+    // loginRequired,
     asyncHandler(async (req, res) => {
       const { page, limit } = req.query;
-      // const user = await getUserByEmail("aksmf1442@gmail.com");
-      const user = req.user;
+      const user = await getUserByEmail("aksmf1442@gmail.com");
+      // const user = req.user;
       const skip = (page - 1) * limit;
       const likes = await getLikePresetsByUser(skip, limit, user);
 
