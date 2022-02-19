@@ -142,9 +142,11 @@ const parsePresetsData = async (presets) => {
 };
 
 const getMyPreset = async (user) => {
-  let preset = await Preset.findOne({ author: user }).sort({
-    updatedAt: "desc",
-  });
+  let preset = await Preset.findOne({ author: user })
+    .sort({
+      updatedAt: "desc",
+    })
+    .populate("author");
   if (!preset) {
     throw new Error("프리셋 정보가 없습니다.");
   }
