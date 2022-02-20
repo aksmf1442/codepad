@@ -7,10 +7,7 @@ dotenv.config();
 const config = {
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL:
-    process.env.NODE_ENV === "production"
-      ? process.env.GOOGLE_CALLBACK
-      : "/auth/google/callback",
+  callbackURL: process.env.GOOGLE_CALLBACK,
 };
 
 module.exports = new GoogleStrategy(

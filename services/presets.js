@@ -7,21 +7,16 @@ const {
   Comment,
   Tag,
   SoundSample,
-  Location,
   Fork,
 } = require("../models");
+const { deleteFile } = require("../utils");
 
 const getSoundSamplesByPreset = async (preset) => {
-  let soundSamples = await Instrument.find({ preset })
-    .populate("soundSample")
-    .populate("location");
+  let soundSamples = await Instrument.find({ preset }).populate("soundSample");
 
   soundSamples = soundSamples.map((ins) => {
     return {
-      location: {
-        x: ins.location.x,
-        y: ins.location.y,
-      },
+      location: ins.xCoordinate + "X" + ins.yCoordinate,
       soundSampleId: ins.soundSample.shortId,
       soundSampleURL: ins.soundSample.URL,
       buttonType: ins.buttonType,
@@ -34,22 +29,60 @@ const getSoundSamplesByPreset = async (preset) => {
 
 const parsePresetData = (preset, soundSamples) => {
   return {
+    userId: preset.author.shortId,
     presetTitle: preset.title,
+    isPrivate: preset.isPrivate,
     presetId: preset.shortId,
     areaSize: preset.size,
     thumbnailURL: preset.thumbnailURL,
-    isPrivate: preset.isPrivate,
     soundSamples,
   };
 };
 
 const getPresetByUserId = async (userId) => {
   const user = await User.findOne({ shortId: userId });
-  const preset = await Preset.find({ author: user })
+  let preset = await Preset.find({ author: user })
+    .where("isPrivate")
+    .equals(false)
     .sort({
       updatedAt: "desc",
     })
-    .limit(1);
+    .limit(1)
+    .populate("author");
+
+  preset = preset[0];
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+  await visitPreset(preset);
+  const soundSamples = await getSoundSamplesByPreset(preset);
+
+  return parsePresetData(preset, soundSamples);
+};
+
+const getPresetByPresetId = async (presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+
+  await visitPreset(preset);
+  const soundSamples = await getSoundSamplesByPreset(preset);
+
+  return parsePresetData(preset, soundSamples);
+};
+
+const getDefaultPreset = async () => {
+  const presetType = "default";
+  const presets = await Preset.find({ presetType })
+    .sort({
+      updatedAt: "asc",
+    })
+    .limit(1)
+    .populate("author");
+
+  const preset = presets[0];
 
   if (!preset) {
     throw new Error("프리셋 정보가 없습니다.");
@@ -60,16 +93,34 @@ const getPresetByUserId = async (userId) => {
   return parsePresetData(preset, soundSamples);
 };
 
-const getPresetByPresetId = async (presetId) => {
-  const preset = await Preset.findOne({ shortId: presetId });
+const getMaxPage = (count, limit) => {
+  let maxPage = Math.ceil(count / limit);
+  return maxPage === 0 ? 1 : maxPage;
+};
 
-  if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
-  }
+const getDefaultPresets = async (skip, limit) => {
+  const presetType = "default";
+  let presets = await Preset.find({ presetType })
+    .sort({
+      updatedAt: "desc",
+    })
+    .skip(skip)
+    .limit(limit);
 
-  const soundSamples = await getSoundSamplesByPreset(preset);
+  const presetCount = await Preset.countDocuments({ presetType });
+  const maxPage = getMaxPage(presetCount, limit);
 
-  return parsePresetData(preset, soundSamples);
+  presets = presets.map((preset) => {
+    return {
+      presetId: preset.shortId,
+      title: preset.title,
+      thumbnailURL: preset.thumbnailURL,
+    };
+  });
+
+  presets = { presetList: presets, maxPage };
+
+  return presets;
 };
 
 const getCommunityCount = async (preset) => {
@@ -79,16 +130,8 @@ const getCommunityCount = async (preset) => {
   return { viewCount, likeCount, commentCount };
 };
 
-const getPresetsByPresetId = async (presetId) => {
-  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
-
-  if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
-  }
-
-  let presets = await Preset.find({ author: preset.author });
-
-  presets = await Promise.all(
+const parsePresetsData = async (presets) => {
+  return await Promise.all(
     presets.map(async (preset) => {
       const { viewCount, likeCount, commentCount } = await getCommunityCount(
         preset
@@ -97,6 +140,7 @@ const getPresetsByPresetId = async (presetId) => {
       return {
         presetId: preset.shortId,
         title: preset.title,
+        thumbnailImageURL: preset.thumbnailURL,
         reactions: {
           viewCount,
           likeCount,
@@ -105,7 +149,61 @@ const getPresetsByPresetId = async (presetId) => {
       };
     })
   );
+};
 
+const getMyPreset = async (user) => {
+  let preset = await Preset.findOne({ author: user })
+    .sort({
+      updatedAt: "desc",
+    })
+    .populate("author");
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+
+  await visitPreset(preset);
+  const soundSamples = await getSoundSamplesByPreset(preset);
+
+  return parsePresetData(preset, soundSamples);
+};
+
+const getMyPresets = async (skip, limit, user) => {
+  let presets = await Preset.find({ author: user })
+    .where("presetType")
+    .equals("custom")
+    .sort({
+      updatedAt: "desc",
+    })
+    .skip(skip)
+    .limit(limit);
+
+  const presetCount = await Preset.countDocuments({ author: user });
+  const maxPage = getMaxPage(presetCount, limit);
+  presets = await parsePresetsData(presets);
+  presets = { presetList: presets, maxPage };
+  return presets;
+};
+
+const getPresetsByPresetId = async (skip, limit, presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+
+  if (!preset) {
+    throw new Error("프리셋 정보가 없습니다.");
+  }
+
+  let presets = await Preset.find({ author: preset.author })
+    .where("isPrivate")
+    .equals(false)
+    .sort({ updatedAt: "desc" })
+    .skip(skip)
+    .limit(limit);
+
+  const presetCount = await Preset.countDocuments({ author: preset.author })
+    .where("isPrivate")
+    .equals(false);
+  const maxPage = getMaxPage(presetCount, limit);
+  presets = await parsePresetsData(presets);
+  presets = { presetList: presets, maxPage };
   return presets;
 };
 
@@ -117,7 +215,12 @@ const getTagsByPresetId = async (presetId) => {
   }
 
   let tags = await Tag.find({ preset });
-  tags = tags.map((tag) => tag.text);
+  tags = tags.map((tag) => {
+    return {
+      tagId: tag.shortId,
+      text: tag.text,
+    };
+  });
 
   return tags;
 };
@@ -149,7 +252,7 @@ const parseComments = (comments) => {
   return comments;
 };
 
-const getCommentsByPresetId = async (presetId) => {
+const getCommentsByPresetId = async (skip, limit, presetId) => {
   const preset = await Preset.findOne({ shortId: presetId });
 
   if (!preset) {
@@ -158,8 +261,10 @@ const getCommentsByPresetId = async (presetId) => {
 
   let comments = await Comment.find({ preset })
     .sort({
-      updatedAt: "desc",
+      createdAt: "desc",
     })
+    .skip(skip)
+    .limit(limit)
     .populate("author");
 
   comments = parseComments(comments);
@@ -183,15 +288,18 @@ const addComment = async (presetId, user, text) => {
 };
 
 const validateCommentUser = async (user, commentId) => {
-  const comment = await Comment.findOne({ shortId: commentId }).populate(
-    "author"
-  );
+  const comment = await Comment.findOne({ shortId: commentId })
+    .populate("author")
+    .populate({ path: "preset", populate: "author" });
 
   if (!comment) {
     throw new Error("댓글 정보가 없습니다.");
   }
 
-  if (user.shortId !== comment.author.shortId) {
+  if (
+    user.shortId !== comment.preset.author.shortId &&
+    user.shortId !== comment.author.shortId
+  ) {
     throw new Error("잘못된 접근입니다.");
   }
 };
@@ -240,13 +348,14 @@ const getLikeClickedState = async (click, presetId, user) => {
   return isCliked;
 };
 
-const addPreset = async (title, user, isPrivate, thumbnailURL) => {
-  if (!title || !isPrivate) {
+const addPreset = async (title, user, isPrivate, thumbnailURL, presetType) => {
+  if (!title || isPrivate === undefined) {
     throw new Error("필수 정보 입력이 필요합니다.");
   }
-  const size = 8;
+  const size = 64;
   const preset = await Preset.create({
     shortId: nanoid(),
+    presetType,
     author: user,
     title,
     isPrivate,
@@ -254,6 +363,29 @@ const addPreset = async (title, user, isPrivate, thumbnailURL) => {
     thumbnailURL,
   });
 
+  return preset;
+};
+
+const updatePresetByPresetId = async (
+  presetId,
+  title,
+  isPrivate,
+  thumbnailURL
+) => {
+  let preset = await Preset.findOne({ shortId: presetId });
+
+  if (preset.thumbnailURL && thumbnailURL) {
+    deleteFile(preset.thumbnailURL);
+  }
+
+  preset = await Preset.findOneAndUpdate(
+    { shortId: presetId },
+    {
+      title: !title ? preset.title : title,
+      isPrivate: isPrivate === undefined ? preset.isPrivate : isPrivate,
+      thumbnailURL: !thumbnailURL ? preset.thumbnailURL : thumbnailURL,
+    }
+  );
   return preset;
 };
 
@@ -265,23 +397,36 @@ const addInstrument = async (
   soundSampleURL
 ) => {
   if (!presetId || !location || !buttonType || !soundType || !soundSampleURL) {
-    throw new Error("필수 정보 입력이 필요합니다.");
+    // 나중에 수정해야 할지도 모름
+    if (soundSampleURL) {
+      deleteFile(soundSampleURL);
+    }
+    return;
   }
+  const [x, y] = location.split("X");
+
+  const preset = await Preset.findOne({ shortId: presetId });
+  const validateInstrument = await Instrument.findOne({
+    preset,
+    xCoordinate: x,
+    yCoordinate: y,
+  });
+
+  if (validateInstrument) {
+    deleteFile(soundSampleURL);
+    throw new Error("해당 위치에 이미 사운드 값이 있습니다.");
+  }
+
   const soundSample = await SoundSample.create({
     shortId: nanoid(),
     URL: soundSampleURL,
   });
-  let parseLocation = location.split("X");
-  parseLocation = await Location.create({
-    x: parseLocation[0],
-    y: parseLocation[1],
-  });
-  const preset = await Preset.findOne({ shortId: presetId });
 
   const instrument = await Instrument.create({
     preset,
     soundSample,
-    location: parseLocation,
+    xCoordinate: x,
+    yCoordinate: y,
     buttonType,
     soundType,
   });
@@ -289,9 +434,121 @@ const addInstrument = async (
   return instrument;
 };
 
+const deleteInstrument = async (preset, instrument, x, y) => {
+  deleteFile(instrument.soundSample.URL);
+  await SoundSample.findOneAndDelete({
+    shortId: instrument.soundSample.shortId,
+  });
+  await Instrument.findOneAndDelete({
+    preset,
+    xCoordinate: x,
+    yCoordinate: y,
+  });
+};
+
+const updateSoundFileToInstrument = async (
+  preset,
+  instrument,
+  buttonType,
+  soundType,
+  soundSampleURL,
+  newSoundSampleURL,
+  x,
+  y
+) => {
+  deleteFile(soundSampleURL);
+  await SoundSample.findOneAndUpdate(
+    { shortId: instrument.soundSample.shortId },
+    {
+      URL: newSoundSampleURL,
+    }
+  );
+  await Instrument.findOneAndUpdate(
+    {
+      preset,
+      xCoordinate: x,
+      yCoordinate: y,
+    },
+    {
+      buttonType,
+      soundType,
+    }
+  );
+};
+
+const updateOnlyTextDataToInstrument = async (
+  preset,
+  x,
+  y,
+  buttonType,
+  soundType
+) => {
+  await Instrument.findOneAndUpdate(
+    {
+      preset,
+      xCoordinate: x,
+      yCoordinate: y,
+    },
+    {
+      buttonType,
+      soundType,
+    }
+  );
+};
+
+const updateInstrument = async (
+  presetId,
+  location,
+  buttonType,
+  soundType,
+  soundSampleURL,
+  newSoundSampleURL
+) => {
+  const preset = await Preset.findOne({ shortId: presetId });
+  const [x, y] = location.split("X");
+  const instrument = await Instrument.findOne({
+    preset,
+    xCoordinate: x,
+    yCoordinate: y,
+  }).populate("soundSample");
+
+  if (instrument) {
+    if (!newSoundSampleURL && !soundSampleURL) {
+      deleteInstrument(preset, instrument, x, y);
+    } else if (newSoundSampleURL) {
+      updateSoundFileToInstrument(
+        preset,
+        instrument,
+        buttonType,
+        soundType,
+        soundSampleURL,
+        newSoundSampleURL,
+        x,
+        y
+      );
+    } else {
+      updateOnlyTextDataToInstrument(preset, x, y, buttonType, soundType);
+    }
+  } else {
+    if (newSoundSampleURL) {
+      await addInstrument(
+        preset.shortId,
+        location,
+        buttonType,
+        soundType,
+        newSoundSampleURL
+      );
+    }
+  }
+};
+
 const addTag = async (preset, text) => {
-  const tag = await Tag.create({ preset, text });
+  const tag = await Tag.create({ shortId: nanoid(), preset, text });
   return tag;
+};
+
+const deleteTags = async (preset) => {
+  await Tag.deleteMany({ preset });
 };
 
 const validateFirstFork = async (fork, preset) => {
@@ -305,34 +562,45 @@ const validateFirstFork = async (fork, preset) => {
   } else {
     await Fork.create({
       preset,
-      count: 0,
+      count: 1,
     });
   }
+};
+
+const getForkCountByPresetId = async (presetId) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  const fork = await Fork.findOne({ preset });
+  let forkCount = 0;
+  if (fork) {
+    forkCount = fork.count;
+  }
+  return forkCount;
 };
 
 const addForkByPresetId = async (presetId, user) => {
   const preset = await Preset.findOne({ shortId: presetId }).populate("author");
   const fork = await Fork.findOne({ preset });
+  const presetType = "custom";
 
   if (!preset) {
     throw new Error("프리셋 정보가 없습니다.");
   }
 
+  await addPreset(
+    preset.title,
+    user,
+    preset.isPrivate,
+    preset.thumbnailURL,
+    presetType
+  );
   await validateFirstFork(fork, preset);
-  await addPreset(preset.title, user, preset.isPrivate, preset.thumbnailURL);
 
   return fork;
 };
 
-const visitPreset = async (presetId) => {
-  const preset = await Preset.findOne({ shortId: presetId });
-
-  if (!preset) {
-    throw new Error("프리셋 정보가 없습니다.");
-  }
-
+const visitPreset = async (preset) => {
   await Preset.updateOne(
-    { shortId: presetId },
+    { shortId: preset.shortId },
     {
       viewCount: preset.viewCount + 1,
     }
@@ -340,10 +608,28 @@ const visitPreset = async (presetId) => {
   return preset;
 };
 
+const getPresetCurrentPage = async (presetId, limit) => {
+  const preset = await Preset.findOne({ shortId: presetId }).populate("author");
+  const author = await User.findOne({ shortId: preset.author.shortId });
+  const presets = await Preset.find({ author }).sort({ updatedAt: "desc" });
+  let page;
+  for (let i = 0; i < presets.length; i++) {
+    if (presets[i].shortId === preset.shortId) {
+      page = Math.floor(i / limit) + 1;
+      page += "X" + ((i % limit) + 1);
+    }
+  }
+  return page;
+};
+
 module.exports = {
   getPresetByUserId,
   getPresetByPresetId,
   getPresetsByPresetId,
+  getMyPreset,
+  getMyPresets,
+  getDefaultPreset,
+  getDefaultPresets,
   getTagsByPresetId,
   getCommunityCountByPresetId,
   getCommentsByPresetId,
@@ -352,8 +638,13 @@ module.exports = {
   deleteCommentByCommentId,
   getLikeClickedState,
   addInstrument,
+  updateInstrument,
   addPreset,
+  updatePresetByPresetId,
   addTag,
+  deleteTags,
   addForkByPresetId,
   visitPreset,
+  getForkCountByPresetId,
+  getPresetCurrentPage,
 };

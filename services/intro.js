@@ -6,6 +6,7 @@ const sortPresetsByLikeAndVisitCount = async (presets) => {
       const likeCount = await Like.countDocuments({ preset });
       return {
         presetId: preset.shortId,
+        userId: preset.author.shortId,
         thumbnailURL: preset.thumbnailURL,
         title: preset.title,
         author: preset.author.name,
@@ -36,6 +37,7 @@ const skipAndLimitPresets = (presets, skip, limit) => {
       thumbnailURL: preset.thumbnailURL,
       title: preset.title,
       author: preset.author,
+      userId: preset.userId,
     });
   }
 
@@ -43,7 +45,10 @@ const skipAndLimitPresets = (presets, skip, limit) => {
 };
 
 const getPopularPresets = async (skip, limit) => {
-  let presets = await Preset.find().populate("author");
+  let presets = await Preset.find()
+    .where("isPrivate")
+    .equals(false)
+    .populate("author");
 
   const comparablePresets = await sortPresetsByLikeAndVisitCount(presets);
   presets = skipAndLimitPresets(comparablePresets, skip, limit);
@@ -52,23 +57,33 @@ const getPopularPresets = async (skip, limit) => {
 };
 
 const sortRecentlyUsedPresets = async (presets) => {
-  const recentlyUsedPresets = await Promise.all(
+  let recentlyUsedPresets = await Promise.all(
     presets.map(async (presetId) => {
-      const preset = await Preset.findOne({ shortId: presetId });
+      const preset = await Preset.findOne({ shortId: presetId }).populate(
+        "author"
+      );
       if (!preset) {
-        throw new Error("");
+        throw new Error("프리셋 정보가 없습니다.");
       }
-      return preset;
+      return {
+        presetId: preset.shortId,
+        userId: preset.author.shortId,
+        thumbnailURL: preset.thumbnailURL,
+        title: preset.title,
+        author: preset.author.name,
+      };
     })
   );
-
-  recentlyUsedPresets.sort((a, b) => {
-    return b.updatedAt - a.updatedAt;
-  });
+  recentlyUsedPresets = recentlyUsedPresets.reverse();
   return recentlyUsedPresets;
 };
 
 const getRecentlyUsedPresets = async (presets, skip, limit) => {
+  if (presets) {
+    presets = JSON.parse(presets);
+  } else {
+    return [];
+  }
   const recentlyUsedPresets = await sortRecentlyUsedPresets(presets);
 
   presets = skipAndLimitPresets(recentlyUsedPresets, skip, limit);
@@ -107,7 +122,7 @@ const skipAndLimitArtists = (artists, skip, limit) => {
     const user = artists[i];
     popularArtists.push({
       userId: user.userId,
-      name: user.name,
+      author: user.name,
       thumbnailURL: user.thumbnailURL,
     });
   }

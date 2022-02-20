@@ -3,6 +3,10 @@ const { Schema } = require("mongoose");
 
 const tagSchema = new mongoose.Schema(
   {
+    shortId: {
+      type: String,
+      required: true,
+    },
     preset: {
       type: Schema.Types.ObjectId,
       ref: "Preset",

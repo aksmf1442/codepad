@@ -15,4 +15,9 @@ const getUserByEmail = async (email) => {
   return user;
 };
 
-module.exports = { addUser, getUserByEmail };
+const getUserByUserId = async (userId) => {
+  const user = await User.findOne({ shortId: userId });
+  return user;
+};
+
+module.exports = { addUser, getUserByEmail, getUserByUserId };

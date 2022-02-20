@@ -5,13 +5,17 @@ const getLikePresetsByUser = async (skip, limit, user) => {
     .skip(skip)
     .limit(limit)
     .sort({ updatedAt: "desc" })
-    .populate("preset");
+    .populate({
+      path: "preset",
+      populate: "author",
+    });
 
   likes = likes.map((like) => {
     return {
       presetId: like.preset.shortId,
       thumbnailURL: like.preset.thumbnailURL,
       title: like.preset.title,
+      userId: like.preset.author.shortId,
     };
   });
   return likes;
