@@ -1,6 +1,7 @@
 const asyncHandler = require("./async-handler");
 const { secret, setUserToken, validateToken } = require("./jwt");
 const { addUser, getUserByEmail, getUserByUserId } = require("./users");
+const { deleteFile } = require("./deleteFile");
 
 module.exports = {
   asyncHandler,
@@ -10,4 +11,5 @@ module.exports = {
   getUserByEmail,
   getUserByUserId,
   validateToken,
+  deleteFile,
 };
