@@ -169,6 +169,8 @@ const getMyPreset = async (user) => {
 
 const getMyPresets = async (skip, limit, user) => {
   let presets = await Preset.find({ author: user })
+    .where("presetType")
+    .equals("custom")
     .sort({
       updatedAt: "desc",
     })
